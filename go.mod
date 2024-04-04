@@ -1,4 +1,4 @@
-module github.com/ahmadhabibi14/kahoot-clone
+module bwizz
 
 go 1.22.1
 

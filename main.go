@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/ahmadhabibi14/kahoot-clone/configs"
+	"bwizz/configs"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
