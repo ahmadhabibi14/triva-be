@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/ahmadhabibi14/kahoot-clone/configs"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
@@ -10,6 +11,15 @@ func main() {
   configs.ConnectPostgresSQL()
   
   app := fiber.New()
+  app.Use(cors.New())
+
+  api := app.Group("/api")
+
+  api.Route("/quiz", func(router fiber.Router) {
+    router.Get("/:id", func(c *fiber.Ctx) error {
+      return c.JSON(":id")
+    })
+  })
 
   app.Get("/", index)
 
