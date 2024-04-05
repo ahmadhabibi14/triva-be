@@ -12,13 +12,12 @@ import (
 var PostgresDB *sqlx.DB
 
 func ConnectPostgresSQL() error {
-	postgresHost := os.Getenv("POSTGRES_HOST")
 	postgresDbName := os.Getenv("POSTGRES_DB")
 	postgresUser := os.Getenv("POSTGRES_USER")
 	postgresPassword := os.Getenv("POSTGRES_PASSWORD")
 	postgresInfo := fmt.Sprintf(
-		"host=%v user=%v password=%v dbname=%v sslmode=disable",
-		postgresHost, postgresUser, postgresPassword, postgresDbName,
+		"user=%v password=%v dbname=%v sslmode=disable",
+		postgresUser, postgresPassword, postgresDbName,
 	)
 
 	db, err := sqlx.Connect("postgres", postgresInfo)

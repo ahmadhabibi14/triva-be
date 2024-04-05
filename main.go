@@ -2,7 +2,9 @@ package main
 
 import (
 	"bwizz/configs"
+	"bwizz/repository/quizzes"
 	"log"
+	"net/http"
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
@@ -10,18 +12,28 @@ import (
 )
 
 func main() {
-  configs.LoadEnv()
-  configs.ConnectPostgresSQL()
+  configs.LoadEnv(".env")
+  if err := configs.ConnectPostgresSQL(); err != nil {
+    panic(err)
+  }
   
   app := fiber.New()
   app.Use(cors.New())
 
   api := app.Group("/api")
 
-  api.Route("/quiz", func(router fiber.Router) {
-    router.Get("/:id", func(c *fiber.Ctx) error {
-      return c.JSON(":id")
-    })
+  api.Get("/quizzes", func(c *fiber.Ctx) error {
+    quiz := quizzes.NewQuizMutator()
+    quizzesList, err := quiz.FindAll()
+    if err != nil {
+      return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+        "code": fiber.StatusInternalServerError,
+        "status": http.StatusText(fiber.StatusInternalServerError),
+        "error": err.Error(),
+      })
+    }
+
+    return c.Status(fiber.StatusOK).JSON(quizzesList)
   })
 
   app.Get("/", index)
