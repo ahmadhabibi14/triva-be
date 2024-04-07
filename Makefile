@@ -9,3 +9,6 @@ migrate-up:
 
 migrate-down:
 	migrate -path database/migration -database "postgres://habi:habi123@localhost:5432/bwizz?sslmode=disable" -verbose down
+
+build:
+	go build -o bin/bwizz cmd/bwizz.go
