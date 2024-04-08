@@ -2,17 +2,14 @@ package internal
 
 import (
 	"bwizz/configs"
-	"bwizz/helper"
 	"bwizz/internal/controller"
 	"bwizz/internal/repository/quizzes"
 	"bwizz/internal/service"
-	"errors"
+	"bwizz/internal/web"
 	"log"
-	"os"
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -34,23 +31,9 @@ func (a *App) Init() {
 }
 
 func (a *App) setupHTTP() {
-	app := fiber.New(fiber.Config{
-		AppName: os.Getenv("PROJECT_NAME"),
-		Prefork: false,
-		ErrorHandler: func(c *fiber.Ctx, err error) error {
-			var code int = fiber.StatusNotFound
-			var e *fiber.Error
-			if errors.As(err, &e) {
-				code = e.Code
-			}
-
-			resp := helper.NewHTTPResponse(code, e.Error(), nil)
-
-			c.Set(fiber.HeaderContentType, fiber.MIMEApplicationJSON)
-			return c.Status(code).JSON(resp)
-		},
-	})
-	app.Use(cors.New())
+	app := web.NewWebserver()
+	middleware := web.NewMiddlewares(app)
+	middleware.Init()
 
 	quizController := controller.NewQuizController(a.quizService)
 	app.Get("/api/quizzes", quizController.GetQuizzes)
