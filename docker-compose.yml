@@ -13,3 +13,17 @@ services:
     volumes:
       - ./_docker-data/postgres:/var/lib/postgresql/data
     restart: on-failure
+    networks:
+      - bwizz-network
+  pgadmin:
+    image: adminer
+    restart: on-failure
+    depends_on: 
+      - postgres
+    ports:
+      - 8080:8080
+    networks:
+      - bwizz-network
+
+networks:
+  bwizz-network:
