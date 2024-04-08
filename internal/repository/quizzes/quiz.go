@@ -1,7 +1,6 @@
 package quizzes
 
 import (
-	"bwizz/configs"
 	"errors"
 	"strings"
 
@@ -15,38 +14,20 @@ type Quiz struct {
 
 	Id string `db:"id" json:"id"`
 	Name string `db:"name" json:"name"`
-	Questions *[]QuizQuestion `db:"-" json:"questions"`
+	Questions []QuizQuestion `db:"-" json:"questions"`
 }
 
-func NewQuizMutator() *Quiz {
-	return &Quiz{DB: configs.PostgresDB}
-}
+func NewQuizMutator(db *sqlx.DB) *Quiz { return &Quiz{DB: db} }
 
-func (q *Quiz) GetQuizzes() ([]Quiz, error) {
-	query := `SELECT id, name FROM quizzes ORDER BY name DESC`
-	rows, err := q.DB.Queryx(query)
-	if err != nil {
-		return []Quiz{}, err
-	}
-
-	defer rows.Close()
+func (q *Quiz) GetQuizzes() (quizzes []Quiz, err error) {
+	query := `SELECT
+		COALESCE(id, '') id, COALESCE(name, '') name
+		FROM ` + TABLE_Quiz + `
+		ORDER BY name DESC`
 	
-	var quizzes []Quiz
-	for rows.Next() {
-		var quiz Quiz
-		err := rows.StructScan(&quiz)
-		if err != nil {
-			return []Quiz{}, err
-		}
-
-		quizzes = append(quizzes, quiz)
-	}
-
-	if err := rows.Err(); err != nil {
-		return []Quiz{}, err
-	}
+	err = q.DB.Select(&quizzes, query)
 	
-	return quizzes, nil
+	return
 }
 
 func (q *Quiz) FindById(id string) error {

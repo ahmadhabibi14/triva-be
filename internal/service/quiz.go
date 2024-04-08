@@ -12,6 +12,8 @@ func NewQuizService(qr *quizzes.Quiz) *QuizService {
 	return &QuizService{quizRepository: qr}
 }
 
-func (s *QuizService) GetQuizzes() ([]quizzes.Quiz, error) {
-	return s.quizRepository.GetQuizzes()
+func (s *QuizService) GetQuizzes() (quizzes []quizzes.Quiz, err error) {
+	quizzes, err = s.quizRepository.GetQuizzes()
+
+	return
 }

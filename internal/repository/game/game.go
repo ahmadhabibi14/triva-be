@@ -12,3 +12,5 @@ type Game struct {
 	CurrentQuestion int64 `db:"current_question" json:"current_question"`
 	Code string `db:"code" json:"code"`
 }
+
+func NewGameMutator(db *sqlx.DB) *Game { return &Game{DB: db} }

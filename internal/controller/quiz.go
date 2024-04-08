@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bwizz/helper"
 	"bwizz/internal/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,8 +18,10 @@ func NewQuizController(qs *service.QuizService) *QuizController {
 func (qc *QuizController) GetQuizzes(ctx *fiber.Ctx) error {
 	quizzes, err := qc.quizService.GetQuizzes()
 	if err != nil {
-		return err
+		response := helper.NewHTTPResponse(fiber.StatusBadRequest, err.Error(), ``)
+		return ctx.Status(fiber.StatusBadRequest).JSON(response)
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(quizzes)
+	response := helper.NewHTTPResponse(fiber.StatusOK, ``, quizzes)
+	return ctx.Status(fiber.StatusOK).JSON(response)
 }

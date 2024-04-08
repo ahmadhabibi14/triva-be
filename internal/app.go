@@ -62,16 +62,16 @@ func (a *App) setupHTTP() {
 }
 
 func (a *App) setupServices() {
-	a.quizService = service.NewQuizService(quizzes.NewQuizMutator())
+	a.quizService = service.NewQuizService(quizzes.NewQuizMutator(a.db))
 	a.netService = service.NewNetService(a.quizService)
 }
 
 func (a *App) setupDB() {
-	err := configs.ConnectPostgresSQL()
+	db, err := configs.ConnectPostgresSQL()
 	if err != nil {
     panic("failed to connect to database")
   }
-	a.db = configs.PostgresDB
+	a.db = db
 }
 
 func (a *App) setupEnv() {

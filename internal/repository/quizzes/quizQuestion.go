@@ -1,8 +1,6 @@
 package quizzes
 
 import (
-	"bwizz/configs"
-
 	"github.com/jmoiron/sqlx"
 )
 
@@ -16,6 +14,4 @@ type QuizQuestion struct {
 	Choices *[]QuizChoice `db:"-" json:"choices"`
 }
 
-func NewQuizQuestionMutator() *QuizQuestion {
-	return &QuizQuestion{DB: configs.PostgresDB}
-}
+func NewQuizQuestionMutator(db *sqlx.DB) *QuizQuestion { return &QuizQuestion{DB: db} }

@@ -9,9 +9,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var PostgresDB *sqlx.DB
-
-func ConnectPostgresSQL() error {
+func ConnectPostgresSQL() (*sqlx.DB, error) {
 	postgresDbName := os.Getenv("POSTGRES_DB")
 	postgresUser := os.Getenv("POSTGRES_USER")
 	postgresPassword := os.Getenv("POSTGRES_PASSWORD")
@@ -22,7 +20,7 @@ func ConnectPostgresSQL() error {
 
 	db, err := sqlx.Connect("postgres", postgresInfo)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	db.SetMaxIdleConns(10)
@@ -30,7 +28,5 @@ func ConnectPostgresSQL() error {
 	db.SetConnMaxIdleTime(5 * time.Minute)
 	db.SetConnMaxLifetime(60 * time.Minute)
 
-	PostgresDB = db
-
-	return nil
+	return db, nil
 }
