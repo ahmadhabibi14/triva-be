@@ -2,9 +2,6 @@ package service
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
-	"time"
 
 	"github.com/goccy/go-json"
 	"github.com/gofiber/contrib/websocket"
@@ -17,6 +14,7 @@ const (
 
 type NetService struct {
 	quizService *QuizService
+
 	host *websocket.Conn
 	tick int
 }
@@ -25,32 +23,37 @@ func NewNetService(qs *QuizService) *NetService {
 	return &NetService{quizService: qs}
 }
 
-func (ns *NetService) OnIncomingMessage(conn *websocket.Conn, mt int, msg []byte) {
-	str := string(msg)
-	parts := strings.Split(str, ":")
-	cmd := parts[0]
-	argument := parts[1]
+type ConnectPacket struct {
+	Code string `json:"code"`
+	Name string `json:"name"`
+}
 
-	switch cmd {
-	case QUIZ_EVENT_HOST:
-		{
-			fmt.Println("host quiz:", argument)
-			ns.host = conn
-			ns.tick = 100
-			go func() {
-				ns.tick--
-				time.Sleep(time.Second)
-			}()
-			ns.host.WriteMessage(websocket.TextMessage, []byte(strconv.Itoa(ns.tick)))
-			break
-		}
-	case QUIZ_EVENT_JOIN:
-		{
-			fmt.Println("join code:", argument)
-			ns.host.WriteMessage(websocket.TextMessage, []byte("A player joined !!"))
-			break
-		}
+func (ns *NetService) OnIncomingMessage(conn *websocket.Conn, mt int, msg []byte) {
+	if len(msg) < 1 {
+		return
 	}
+	
+	packetId := msg[0]
+	data := msg[1:]
+
+	var packet ConnectPacket
+	err := json.Unmarshal(data, &packet)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(packetId)
+	fmt.Println(packet)
+}
+
+func (ns *NetService) SendPacket(conn *websocket.Conn, packet any) error {
+	bytes, err := ns.PacketToBytes(packet)
+	if err != nil {
+		return err
+	}
+
+	return conn.WriteMessage(websocket.BinaryMessage, bytes)
 }
 
 func (ns *NetService) PacketToBytes(packet any) ([]byte, error) {
