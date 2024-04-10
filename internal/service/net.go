@@ -1,7 +1,10 @@
 package service
 
 import (
+	"bwizz/internal/entity"
+	"errors"
 	"fmt"
+	"log"
 
 	"github.com/goccy/go-json"
 	"github.com/gofiber/contrib/websocket"
@@ -28,23 +31,93 @@ type ConnectPacket struct {
 	Name string `json:"name"`
 }
 
+type HostGamePacket struct {
+	QuizId string `json:"quizId"`
+}
+
+type QuestionShowPacket struct {
+	Question entity.QuizQuestion `json:"question"`
+}
+
+const (
+	PACKET_CONNECT uint8 = iota
+	PACKET_HOST
+	PACKET_QUESTION
+)
+
+func (ns *NetService) packetIdToPacket(packetId uint8) any {
+	switch packetId {
+	case PACKET_CONNECT:
+		{
+			return &ConnectPacket{}
+		}
+	case PACKET_HOST:
+		{
+			return &HostGamePacket{}
+		}
+	}
+
+	return nil
+}
+
+func (ns *NetService) packetToPacketId(packet any) (uint8, error) {
+	switch packet.(type) {
+	case QuestionShowPacket:
+		{
+			return PACKET_QUESTION, nil
+		}
+	}
+
+	return 0, errors.New("invalid packet type")
+}
+
 func (ns *NetService) OnIncomingMessage(conn *websocket.Conn, mt int, msg []byte) {
-	if len(msg) < 1 {
+	if len(msg) < 2 {
+		log.Println(`message length is less than 2`)
 		return
 	}
 	
 	packetId := msg[0]
 	data := msg[1:]
 
-	var packet ConnectPacket
+	packet := ns.packetIdToPacket(packetId)
+	if packet == nil {
+		return
+	}
+
 	err := json.Unmarshal(data, &packet)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	fmt.Println(packetId)
-	fmt.Println(packet)
+	switch packet := packet.(type) {
+	case *ConnectPacket:
+		{
+			fmt.Println(packet.Name, "wants to join game ", packet.Code)
+			break
+		}
+	case *HostGamePacket:
+		{
+			fmt.Println("User wants to host quiz ", packet.QuizId)
+			go func() {
+				ns.SendPacket(conn, QuestionShowPacket{
+					Question: entity.QuizQuestion{
+						Name: "What is 2+2 ?",
+						Choices: []entity.QuizChoice{
+							{
+								Name: "4",
+								Correct: true,
+							}, {
+								Name: "9",
+							},
+						},
+					},
+				})
+			}()
+			break
+		}
+	}
 }
 
 func (ns *NetService) SendPacket(conn *websocket.Conn, packet any) error {
@@ -57,7 +130,10 @@ func (ns *NetService) SendPacket(conn *websocket.Conn, packet any) error {
 }
 
 func (ns *NetService) PacketToBytes(packet any) ([]byte, error) {
-	var packetId uint8 = 0
+	packetId, err := ns.packetToPacketId(packet)
+	if err != nil {
+		return nil, err
+	}
 
 	bytes, err := json.Marshal(packet)
 	if err != nil {
@@ -65,6 +141,5 @@ func (ns *NetService) PacketToBytes(packet any) ([]byte, error) {
 	}
 
 	final := append([]byte{packetId}, bytes...)
-
 	return final, nil
 }

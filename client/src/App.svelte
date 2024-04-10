@@ -2,8 +2,16 @@
   import QuizCard from './lib/QuizCard.svelte';
   import type { Quiz } from './types/quiz';
   import type { HTTPResponse } from './types/http';
+  import { NetService } from './service/net';
+  import { onMount } from 'svelte';
 
   let quizzes: Quiz[] = [];
+
+  let netService = new NetService();
+  netService.connect();
+  netService.onPacket((packet: any) => {
+    console.log(packet)
+  });
 
   async function GetQuizzes(): Promise<void> {
     let response: Response = await fetch('http://localhost:3000/api/quizzes');
@@ -18,38 +26,50 @@
     quizzes = json;
   }
 
-  let code: string = '', msg: string = '';
+  let gameCode: string = '';
 
-  function ConnectSocket() {
-    let websocket: WebSocket = new WebSocket('ws://localhost:3000/api/ws');
-    websocket.onopen = () => {
-      console.log('opened connection');
-      websocket.send(`join:${code}`)
-    }
-
-    websocket.onmessage = (event: MessageEvent) => {
-      msg = event.data;
-      console.log(event.data);
-    }
+  function connect() {
+    netService.sendPacket({
+      id: 0,
+      code: gameCode.trim(),
+      name: 'ahmadhabibi14'
+    })
   }
 
-  function HostQuiz(quiz: Quiz) {
-    let websocket: WebSocket = new WebSocket('ws://localhost:3000/api/ws');
-    websocket.onopen = () => {
-      console.log('opened connection');
-      websocket.send(`host:${quiz.id}`)
-    }
+  function hostQuiz(quiz: Quiz) {
+    netService.sendPacket({
+      id: 1,
+      quizId: quiz.id
+    });
   }
 </script>
 
-<main class="container flex justify-center flex-col gap-6">
-  <div class="mt-10 flex flex-row gap-6">
-    <button class="bg-emerald-600 py-2 px-6 rounded-full text-white" on:click={GetQuizzes}>Get Quizzes</button>
-    <button class="bg-sky-500 py-2 px-6 font-semibold text-white rounded-full">Cool</button>
+<main class="flex justify-center flex-col gap-6 p-5 w-full">
+  <div class="min-w-[400px] w-[700px] max-w-[700px] mx-auto flex flex-col gap-6">
+    <h2 class="text-5xl text-sky-500 font-bold text-center">Bwizz - Quiz app</h2>
+    <div class="flex flex-row justify-center gap-3">
+      <input
+        type="text"
+        bind:value={gameCode}
+        class="py-2 px-4 rounded-lg bg-zinc-900 border border-zinc-800 caret-indigo-500 focus:border-indigo-500 focus:outline focus:outline-indigo-500"
+      />
+      <button
+        on:click={connect}
+        class="py-2 px-6 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white"
+      >Join</button>
+    </div>
+    <div class="flex justify-center">
+      <button
+        on:click={GetQuizzes}
+        class="bg-sky-600 hover:bg-sky-500 text-white py-2 px-6 rounded-lg"
+      >Get Quizzes</button>
+    </div>
+    {#if quizzes && quizzes.length}
+      <div class="flex flex-col gap-3">
+        {#each quizzes as q, _ (q.id)}
+          <QuizCard quiz={q} on:click={() => hostQuiz(q)}/>
+        {/each}
+      </div>
+    {/if}
   </div>
-  {#if quizzes && quizzes.length}
-    {#each quizzes as q, _ (q.id)}
-      <QuizCard quiz={q} />
-    {/each}
-  {/if}
 </main>
