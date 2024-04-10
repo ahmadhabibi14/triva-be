@@ -1,19 +1,19 @@
 package entity
 
 type Quiz struct {
-	Id string
-	Name string
-	Questions []QuizQuestion
+	Id string `json:"id"`
+	Name string `json:"name"`
+	Questions []QuizQuestion `json:"questions"`
 }
 
 type QuizQuestion struct {
-	Id string
-	Name string
-	Choices []QuizChoice
+	Id string `json:"id"`
+	Name string `json:"name"`
+	Choices []QuizChoice `json:"choices"`
 }
 
 type QuizChoice struct {
-	Id string
-	Name string
-	Correct bool
+	Id string `json:"id"`
+	Name string `json:"name"`
+	Correct bool `json:"correct"`
 }

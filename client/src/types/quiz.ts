@@ -9,14 +9,13 @@ export type Quiz = {
 // QuizQuestion
 export type QuizQuestion = {
   id: string;
-  question: string;
+  name: string;
   choices: QuizChoice[];
-  answer: QuizChoice;
 }
 
 // QuizChoice
 export type QuizChoice = {
   id: string;
-  text: string;
+  name: string;
   correct: boolean;
 }

@@ -1,16 +1,23 @@
 <script lang="ts">
   import QuizCard from './lib/QuizCard.svelte';
-  import type { Quiz } from './types/quiz';
+  import type { Quiz, QuizQuestion } from './types/quiz';
   import type { HTTPResponse } from './types/http';
   import { NetService } from './service/net';
-  import { onMount } from 'svelte';
 
   let quizzes: Quiz[] = [];
+
+  let currentQuestion: QuizQuestion|null = null;
 
   let netService = new NetService();
   netService.connect();
   netService.onPacket((packet: any) => {
-    console.log(packet)
+    console.log(packet);
+    switch (packet.id) {
+      case 2: {
+        currentQuestion = packet.question;
+        break;
+      }
+    }
   });
 
   async function GetQuizzes(): Promise<void> {
@@ -57,8 +64,6 @@
         on:click={connect}
         class="py-2 px-6 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white"
       >Join</button>
-    </div>
-    <div class="flex justify-center">
       <button
         on:click={GetQuizzes}
         class="bg-sky-600 hover:bg-sky-500 text-white py-2 px-6 rounded-lg"
@@ -69,6 +74,21 @@
         {#each quizzes as q, _ (q.id)}
           <QuizCard quiz={q} on:click={() => hostQuiz(q)}/>
         {/each}
+      </div>
+    {/if}
+
+    {#if currentQuestion && currentQuestion !== null}
+      <div class="flex flex-col gap-3">
+        <h4 class="text-2xl">{currentQuestion?.name || 'No question'}</h4>
+        {#if currentQuestion.choices && currentQuestion.choices.length}
+          <div class="flex flex-col gap-2">
+            {#each currentQuestion.choices as c}
+              <button class="bg-zinc-900 hover:bg-zinc-800 py-2 px-4 rounded-lg">
+                {c.name}
+              </button>
+            {/each}
+          </div>
+        {/if}
       </div>
     {/if}
   </div>

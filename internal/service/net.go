@@ -1,7 +1,7 @@
 package service
 
 import (
-	"bwizz/internal/entity"
+	"bwizz/internal/repository/quizzes"
 	"errors"
 	"fmt"
 	"log"
@@ -36,7 +36,7 @@ type HostGamePacket struct {
 }
 
 type QuestionShowPacket struct {
-	Question entity.QuizQuestion `json:"question"`
+	Question quizzes.QuizQuestion `json:"question"`
 }
 
 const (
@@ -102,14 +102,18 @@ func (ns *NetService) OnIncomingMessage(conn *websocket.Conn, mt int, msg []byte
 			fmt.Println("User wants to host quiz ", packet.QuizId)
 			go func() {
 				ns.SendPacket(conn, QuestionShowPacket{
-					Question: entity.QuizQuestion{
+					Question: quizzes.QuizQuestion{
 						Name: "What is 2+2 ?",
-						Choices: []entity.QuizChoice{
+						Choices: []quizzes.QuizChoice{
 							{
 								Name: "4",
 								Correct: true,
 							}, {
 								Name: "9",
+							}, {
+								Name: "11",
+							}, {
+								Name: "Elephant",
 							},
 						},
 					},

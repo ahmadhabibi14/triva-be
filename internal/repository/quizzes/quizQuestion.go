@@ -11,7 +11,7 @@ type QuizQuestion struct {
 
 	Id string `db:"id" json:"id"`
 	Name string `db:"name" json:"name"`
-	Choices *[]QuizChoice `db:"-" json:"choices"`
+	Choices []QuizChoice `db:"-" json:"choices"`
 }
 
 func NewQuizQuestionMutator(db *sqlx.DB) *QuizQuestion { return &QuizQuestion{DB: db} }
