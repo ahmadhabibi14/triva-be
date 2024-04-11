@@ -31,7 +31,7 @@ func (q *Quiz) GetQuizzes() (quizzes []Quiz, err error) {
 }
 
 func (q *Quiz) FindById(id string) error {
-	query := `SELECT id, name FROM quizzes WHERE id = $1 LIMIT 1`
+	query := `SELECT id, name FROM ` + TABLE_Quiz + ` WHERE id = $1 LIMIT 1`
 	err := q.DB.Get(q, query, strings.TrimSpace(id))
 	if err != nil {
 		return errors.New(`quiz not found`)

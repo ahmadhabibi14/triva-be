@@ -46,7 +46,7 @@ func (a *App) setupHTTP() {
 
 func (a *App) setupServices() {
 	a.quizService = service.NewQuizService(quizzes.NewQuizMutator(a.db))
-	a.netService = service.NewNetService(a.quizService)
+	a.netService = service.NewNetService(a.quizService, a.db)
 }
 
 func (a *App) setupDB() {

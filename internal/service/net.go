@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bwizz/internal/repository/game"
 	"bwizz/internal/repository/quizzes"
 	"errors"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/gofiber/contrib/websocket"
+	"github.com/jmoiron/sqlx"
 )
 
 const (
@@ -16,14 +18,18 @@ const (
 )
 
 type NetService struct {
+	db *sqlx.DB
 	quizService *QuizService
 
-	host *websocket.Conn
-	tick int
+	games []*game.Game
 }
 
-func NewNetService(qs *QuizService) *NetService {
-	return &NetService{quizService: qs}
+func NewNetService(qs *QuizService, db *sqlx.DB) *NetService {
+	return &NetService{
+		quizService: qs,
+		db: db,
+		games: []*game.Game{},
+}
 }
 
 type ConnectPacket struct {
@@ -91,34 +97,24 @@ func (ns *NetService) OnIncomingMessage(conn *websocket.Conn, mt int, msg []byte
 		return
 	}
 
-	switch packet := packet.(type) {
+	switch data := packet.(type) {
 	case *ConnectPacket:
 		{
-			fmt.Println(packet.Name, "wants to join game ", packet.Code)
+			fmt.Println(data.Name, "wants to join game ", data.Code)
 			break
 		}
 	case *HostGamePacket:
 		{
-			fmt.Println("User wants to host quiz ", packet.QuizId)
-			go func() {
-				ns.SendPacket(conn, QuestionShowPacket{
-					Question: quizzes.QuizQuestion{
-						Name: "What is 2+2 ?",
-						Choices: []quizzes.QuizChoice{
-							{
-								Name: "4",
-								Correct: true,
-							}, {
-								Name: "9",
-							}, {
-								Name: "11",
-							}, {
-								Name: "Elephant",
-							},
-						},
-					},
-				})
-			}()
+			log.Println(`Quiz ID:`, data.QuizId)
+			quiz := quizzes.NewQuizMutator(ns.db)
+			err := quiz.FindById(data.QuizId)
+			if err != nil {
+				log.Println(`(ns *NetService) OnIncomingMessage()`, err)
+				return
+			}
+
+			ns.games = append(ns.games, game.NewGameMutator(ns.db, *quiz, conn))
+			log.Println(`Games:`, ns.games)
 			break
 		}
 	}
