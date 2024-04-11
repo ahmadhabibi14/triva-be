@@ -1,7 +1,7 @@
 package service
 
 import (
-	"bwizz/internal/repository/game"
+	"bwizz/internal/repository/games"
 	"bwizz/internal/repository/quizzes"
 	"errors"
 	"fmt"
@@ -21,14 +21,14 @@ type NetService struct {
 	db *sqlx.DB
 	quizService *QuizService
 
-	games []*game.Game
+	games []*games.Game
 }
 
 func NewNetService(qs *QuizService, db *sqlx.DB) *NetService {
 	return &NetService{
 		quizService: qs,
 		db: db,
-		games: []*game.Game{},
+		games: []*games.Game{},
 }
 }
 
@@ -77,11 +77,23 @@ func (ns *NetService) packetToPacketId(packet any) (uint8, error) {
 	return 0, errors.New("invalid packet type")
 }
 
+func (ns *NetService) getGameByCode(code string) *games.Game {
+	for _, g := range ns.games {
+		if g.Code == code {
+			return g
+		}
+	}
+
+	return nil
+}
+
 func (ns *NetService) OnIncomingMessage(conn *websocket.Conn, mt int, msg []byte) {
 	if len(msg) < 2 {
 		log.Println(`message length is less than 2`)
 		return
 	}
+
+	fmt.Println(`MSG:`, string(msg))
 	
 	packetId := msg[0]
 	data := msg[1:]
@@ -100,12 +112,16 @@ func (ns *NetService) OnIncomingMessage(conn *websocket.Conn, mt int, msg []byte
 	switch data := packet.(type) {
 	case *ConnectPacket:
 		{
-			fmt.Println(data.Name, "wants to join game ", data.Code)
+			game := ns.getGameByCode(data.Code)
+			if game == nil {
+				return
+			}
+			
+			game.OnPlayerJoin(data.Name, conn)
 			break
 		}
 	case *HostGamePacket:
 		{
-			log.Println(`Quiz ID:`, data.QuizId)
 			quiz := quizzes.NewQuizMutator(ns.db)
 			err := quiz.FindById(data.QuizId)
 			if err != nil {
@@ -113,8 +129,8 @@ func (ns *NetService) OnIncomingMessage(conn *websocket.Conn, mt int, msg []byte
 				return
 			}
 
-			ns.games = append(ns.games, game.NewGameMutator(ns.db, *quiz, conn))
-			log.Println(`Games:`, ns.games)
+			newGame := games.NewGameMutator(ns.db, *quiz, conn)
+			ns.games = append(ns.games, newGame)
 			break
 		}
 	}
