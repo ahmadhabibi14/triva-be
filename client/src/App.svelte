@@ -33,13 +33,13 @@
     quizzes = json;
   }
 
-  let gameCode: string = '';
+  let gameCode: string = '', name: string = '';
 
   function connect() {
     netService.sendPacket({
       id: 0,
       code: gameCode.trim(),
-      name: 'ahmadhabibi14'
+      name: name.trim()
     })
   }
 
@@ -57,18 +57,25 @@
     <div class="flex flex-row justify-center gap-3">
       <input
         type="text"
+        placeholder="Enter game code"
         bind:value={gameCode}
+        class="py-2 px-4 rounded-lg bg-zinc-900 border border-zinc-800 caret-indigo-500 focus:border-indigo-500 focus:outline focus:outline-indigo-500"
+      />
+      <input
+        type="text"
+        placeholder="Name"
+        bind:value={name}
         class="py-2 px-4 rounded-lg bg-zinc-900 border border-zinc-800 caret-indigo-500 focus:border-indigo-500 focus:outline focus:outline-indigo-500"
       />
       <button
         on:click={connect}
         class="py-2 px-6 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white"
       >Join</button>
-      <button
+    </div>
+    <button
         on:click={GetQuizzes}
         class="bg-sky-600 hover:bg-sky-500 text-white py-2 px-6 rounded-lg"
       >Get Quizzes</button>
-    </div>
     {#if quizzes && quizzes.length}
       <div class="flex flex-col gap-3">
         {#each quizzes as q, _ (q.id)}
