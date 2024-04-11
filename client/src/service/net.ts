@@ -1,3 +1,21 @@
+export enum PacketTypes {
+  Connect,
+  HostGame,
+  QuestionShow,
+  ChangeGameState
+}
+
+export enum GameState {
+  Lobby,
+  Play,
+  Reveal,
+  End
+}
+
+export interface ChangeGameStatePacket {
+  state: GameState;
+}
+
 export class NetService {
   private websocket!: WebSocket;
   private textDecoder: TextDecoder = new TextDecoder();

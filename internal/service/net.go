@@ -45,10 +45,15 @@ type QuestionShowPacket struct {
 	Question quizzes.QuizQuestion `json:"question"`
 }
 
+type ChangeGameStatePacket struct {
+	State games.GameState `json:"state"`
+}
+
 const (
 	PACKET_CONNECT uint8 = iota
 	PACKET_HOST
 	PACKET_QUESTION
+	PACKET_STATE
 )
 
 func (ns *NetService) packetIdToPacket(packetId uint8) any {
@@ -71,6 +76,10 @@ func (ns *NetService) packetToPacketId(packet any) (uint8, error) {
 	case QuestionShowPacket:
 		{
 			return PACKET_QUESTION, nil
+		}
+	case ChangeGameStatePacket:
+		{
+			return PACKET_STATE, nil
 		}
 	}
 

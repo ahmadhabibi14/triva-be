@@ -2,7 +2,7 @@
   import QuizCard from './lib/QuizCard.svelte';
   import type { Quiz, QuizQuestion } from './types/quiz';
   import type { HTTPResponse } from './types/http';
-  import { NetService } from './service/net';
+  import { NetService, PacketTypes, type ChangeGameStatePacket } from './service/net';
 
   let quizzes: Quiz[] = [];
 
@@ -13,8 +13,13 @@
   netService.onPacket((packet: any) => {
     console.log(packet);
     switch (packet.id) {
-      case 2: {
+      case PacketTypes.QuestionShow: {
         currentQuestion = packet.question;
+        break;
+      }
+      case PacketTypes.ChangeGameState: {
+        let data = packet as ChangeGameStatePacket;
+        console.log(data.state);
         break;
       }
     }
