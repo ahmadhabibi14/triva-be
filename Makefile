@@ -12,3 +12,6 @@ migrate-down:
 
 build:
 	go build -o bin/bwizz cmd/bwizz.go
+
+run:
+	go run cmd/bwizz.go
