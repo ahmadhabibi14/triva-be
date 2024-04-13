@@ -1,7 +1,6 @@
 package service
 
 import (
-	"bwizz/internal/repository/games"
 	"bwizz/internal/repository/quizzes"
 	"errors"
 	"fmt"
@@ -21,14 +20,14 @@ type NetService struct {
 	db *sqlx.DB
 	quizService *QuizService
 
-	games []*games.Game
+	games []*GameService
 }
 
 func NewNetService(qs *QuizService, db *sqlx.DB) *NetService {
 	return &NetService{
 		quizService: qs,
 		db: db,
-		games: []*games.Game{},
+		games: []*GameService{},
 }
 }
 
@@ -46,7 +45,15 @@ type QuestionShowPacket struct {
 }
 
 type ChangeGameStatePacket struct {
-	State games.GameState `json:"state"`
+	State GameState `json:"state"`
+}
+
+type PlayerJoinPacket struct {
+	Player Player `json:"player"`
+}
+
+type StartGamePacket struct {
+
 }
 
 const (
@@ -54,6 +61,8 @@ const (
 	PACKET_HOST
 	PACKET_QUESTION
 	PACKET_STATE
+	PACKET_PLAYER_JOIN
+	PACKET_START_GAME
 )
 
 func (ns *NetService) packetIdToPacket(packetId uint8) any {
@@ -65,6 +74,10 @@ func (ns *NetService) packetIdToPacket(packetId uint8) any {
 	case PACKET_HOST:
 		{
 			return &HostGamePacket{}
+		}
+	case PACKET_START_GAME:
+		{
+			return &StartGamePacket{}
 		}
 	}
 
@@ -81,15 +94,29 @@ func (ns *NetService) packetToPacketId(packet any) (uint8, error) {
 		{
 			return PACKET_STATE, nil
 		}
+	case PlayerJoinPacket:
+		{
+			return PACKET_PLAYER_JOIN, nil
+		}
 	}
 
 	return 0, errors.New("invalid packet type")
 }
 
-func (ns *NetService) getGameByCode(code string) *games.Game {
+func (ns *NetService) getGameByCode(code string) *GameService {
 	for _, g := range ns.games {
 		if g.Code == code {
 			return g
+		}
+	}
+
+	return nil
+}
+
+func (ns *NetService) getGameByHost(host *websocket.Conn) *GameService {
+	for _, game := range ns.games {
+		if game.Host == host {
+			return game
 		}
 	}
 
@@ -138,8 +165,23 @@ func (ns *NetService) OnIncomingMessage(conn *websocket.Conn, mt int, msg []byte
 				return
 			}
 
-			newGame := games.NewGameMutator(ns.db, *quiz, conn)
-			ns.games = append(ns.games, newGame)
+			game := NewGameService(*quiz, conn, ns)
+			log.Println(`new game:`, game.Code)
+			ns.games = append(ns.games, game)
+
+			ns.SendPacket(conn, ChangeGameStatePacket{
+				State: LobbyState,
+			})
+			break
+		}
+	case *StartGamePacket:
+		{
+			game := ns.getGameByHost(conn)
+			if game == nil {
+				return
+			}
+
+			game.Start()
 			break
 		}
 	}

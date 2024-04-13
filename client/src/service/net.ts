@@ -1,8 +1,12 @@
+import type { Player } from '../types/quiz';
+
 export enum PacketTypes {
   Connect,
   HostGame,
   QuestionShow,
-  ChangeGameState
+  ChangeGameState,
+  PlayerJoin,
+  StartGame
 }
 
 export enum GameState {
@@ -14,6 +18,10 @@ export enum GameState {
 
 export interface ChangeGameStatePacket {
   state: GameState;
+}
+
+export interface PlayerJoinPacket {
+  player: Player;
 }
 
 export class NetService {

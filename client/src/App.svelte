@@ -1,12 +1,16 @@
 <script lang="ts">
   import QuizCard from './lib/QuizCard.svelte';
-  import type { Quiz, QuizQuestion } from './types/quiz';
+  import type { Player, Quiz, QuizQuestion } from './types/quiz';
   import type { HTTPResponse } from './types/http';
-  import { NetService, PacketTypes, type ChangeGameStatePacket } from './service/net';
+  import { NetService, PacketTypes, type ChangeGameStatePacket, GameState, type PlayerJoinPacket } from './service/net';
 
   let quizzes: Quiz[] = [];
 
   let currentQuestion: QuizQuestion|null = null;
+  let state: number = -1;
+  let host: boolean = false;
+
+  let players: Player[] = [];
 
   let netService = new NetService();
   netService.connect();
@@ -19,7 +23,12 @@
       }
       case PacketTypes.ChangeGameState: {
         let data = packet as ChangeGameStatePacket;
-        console.log(data.state);
+        state = data.state;
+        break;
+      }
+      case PacketTypes.PlayerJoin: {
+        let data = packet as PlayerJoinPacket; 
+        players = [...players, data.player];
         break;
       }
     }
@@ -42,15 +51,22 @@
 
   function connect() {
     netService.sendPacket({
-      id: 0,
+      id: PacketTypes.Connect,
       code: gameCode.trim(),
       name: name.trim()
     })
   }
 
-  function hostQuiz(quiz: Quiz) {
+  function startGame() {
     netService.sendPacket({
-      id: 1,
+      id: PacketTypes.StartGame,
+    })
+  }
+
+  function hostQuiz(quiz: Quiz) {
+    host = true;
+    netService.sendPacket({
+      id: PacketTypes.HostGame,
       quizId: quiz.id
     });
   }
@@ -58,6 +74,7 @@
 
 <main class="flex justify-center flex-col gap-6 p-5 w-full">
   <div class="min-w-[400px] w-[700px] max-w-[700px] mx-auto flex flex-col gap-6">
+  {#if state === -1}
     <h2 class="text-5xl text-sky-500 font-bold text-center">Bwizz - Quiz app</h2>
     <div class="flex flex-row justify-center gap-3">
       <input
@@ -103,5 +120,21 @@
         {/if}
       </div>
     {/if}
+  {:else if state === GameState.Lobby}
+    {#if host}
+      <div class="flex flex-col">
+        <button on:click={startGame}>Start game</button>
+        <p>Lobby state</p>
+        {#if players && players.length}
+          <p>Players:</p>
+          {#each players as p}
+            <p>{p.name}</p>
+          {/each}
+        {/if}
+      </div>
+    {:else}
+      <p>You successfully joined game</p>
+    {/if}
+  {/if}
   </div>
 </main>
