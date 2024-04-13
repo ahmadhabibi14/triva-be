@@ -29,10 +29,10 @@ const TABLE_Game string = `Game`
 
 type GameService struct {
 	Id string `json:"id"`
-	CurrentQuestion int64 `json:"current_question"`
-	State GameState `json:"game_state"`
 	Quiz quizzes.Quiz `json:"quiz"`
 	Code string `json:"code"`
+	State GameState `json:"game_state"`
+	Time int `json:"time"`
 	Players []Player
 
 	Host *websocket.Conn `json:"-"`
@@ -41,8 +41,10 @@ type GameService struct {
 
 func NewGameService(quiz quizzes.Quiz, host *websocket.Conn, ns *NetService) *GameService {
 	return &GameService{
+		Id: uuid.New().String(),
 		Quiz: quiz,
 		Code: helper.GenerateGameCode(),
+		Time: 60,
 		Players: []Player{},
 		State: LobbyState,
 		Host: host,
@@ -50,36 +52,91 @@ func NewGameService(quiz quizzes.Quiz, host *websocket.Conn, ns *NetService) *Ga
 	}
 }
 
-func (g *GameService) Start() {
-	go func() {
+func (gs *GameService) Start() {
+	gs.ChangeState(PlayState)
+	gs.NetService.SendPacket(gs.Host, QuestionShowPacket{
+		Question: quizzes.QuizQuestion{
+			Id: "",
+			Name: "What is 2 + 2?",
+			Choices: []quizzes.QuizChoice{
+				{
+					Id: "a",
+					Name: "4",
+				},
+				{
+					Id: "b",
+					Name: "5",
+				},
+				{
+					Id: "c",
+					Name: "6",
+				},
+				{
+					Id: "d",
+					Name: "7",
+				},
+			},
+		},
+	})
+
+	go func ()  {
 		defer helper.Recover()
+
 		for {
-			g.Tick()
+			gs.Tick()
 			time.Sleep(time.Second)
 		}
 	}()
 }
 
-func (g *GameService) Tick() {
-
+func (gs *GameService) Tick() {
+	gs.Time--
+	gs.NetService.SendPacket(gs.Host, TickPacket{
+		Tick: gs.Time,
+	})
 }
 
-func (g *GameService) OnPlayerJoin(name string, conn *websocket.Conn) {
+func (gs *GameService) ChangeState(state GameState) {
+	gs.State = state
+	gs.BroadcastPacket(ChangeGameStatePacket{
+		State: state,
+	}, true)
+}
+
+func (gs *GameService) BroadcastPacket(packet any, includeHost bool) error {
+	for _, player := range gs.Players {
+		err := gs.NetService.SendPacket(player.Connection, packet)
+		if err != nil {
+			return err
+		}
+	}
+
+	if includeHost {
+		err := gs.NetService.SendPacket(gs.Host, packet)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (gs *GameService) OnPlayerJoin(name string, conn *websocket.Conn) {
 	fmt.Println(name, "joined the game")
 
 	player := Player{
-		Id: fmt.Sprintf("%v", uuid.New()),
+		Id: uuid.New().String(),
 		Name: name,
 		Connection: conn,
 	}
 
-	g.Players = append(g.Players, player)
+	gs.Players = append(gs.Players, player)
 
-	g.NetService.SendPacket(conn, ChangeGameStatePacket{
-		State: g.State,
+	gs.NetService.SendPacket(conn, ChangeGameStatePacket{
+		State: gs.State,
 	})
 
-	g.NetService.SendPacket(conn, PlayerJoinPacket{
+	gs.NetService.SendPacket(conn, PlayerJoinPacket{
 		Player: player,
 	})
 }

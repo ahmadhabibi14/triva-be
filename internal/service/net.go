@@ -56,6 +56,10 @@ type StartGamePacket struct {
 
 }
 
+type TickPacket struct {
+	Tick int `json:"tick"`
+}
+
 const (
 	PACKET_CONNECT uint8 = iota
 	PACKET_HOST
@@ -63,6 +67,7 @@ const (
 	PACKET_STATE
 	PACKET_PLAYER_JOIN
 	PACKET_START_GAME
+	PACKET_TICK
 )
 
 func (ns *NetService) packetIdToPacket(packetId uint8) any {
@@ -97,6 +102,10 @@ func (ns *NetService) packetToPacketId(packet any) (uint8, error) {
 	case PlayerJoinPacket:
 		{
 			return PACKET_PLAYER_JOIN, nil
+		}
+	case TickPacket:
+		{
+			return PACKET_TICK, nil
 		}
 	}
 

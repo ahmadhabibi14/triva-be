@@ -6,7 +6,8 @@ export enum PacketTypes {
   QuestionShow,
   ChangeGameState,
   PlayerJoin,
-  StartGame
+  StartGame,
+  Tick,
 }
 
 export enum GameState {
@@ -23,6 +24,10 @@ export interface ChangeGameStatePacket {
 export interface PlayerJoinPacket {
   player: Player;
 }
+
+export interface TickPacket {
+  tick: number;
+} 
 
 export class NetService {
   private websocket!: WebSocket;

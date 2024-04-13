@@ -2,18 +2,23 @@
   import QuizCard from './lib/QuizCard.svelte';
   import type { Player, Quiz, QuizQuestion } from './types/quiz';
   import type { HTTPResponse } from './types/http';
-  import { NetService, PacketTypes, type ChangeGameStatePacket, GameState, type PlayerJoinPacket } from './service/net';
+  import { NetService, PacketTypes, type ChangeGameStatePacket, GameState, type PlayerJoinPacket, type TickPacket } from './service/net';
 
   let quizzes: Quiz[] = [];
 
   let currentQuestion: QuizQuestion|null = null;
   let state: number = -1;
   let host: boolean = false;
+  let tick: number = 0;
 
   let players: Player[] = [];
 
   let netService = new NetService();
-  netService.connect();
+
+  setTimeout(() => {
+    netService.connect();
+  }, 500);
+  
   netService.onPacket((packet: any) => {
     console.log(packet);
     switch (packet.id) {
@@ -29,6 +34,11 @@
       case PacketTypes.PlayerJoin: {
         let data = packet as PlayerJoinPacket; 
         players = [...players, data.player];
+        break;
+      }
+      case PacketTypes.Tick: {
+        let data = packet as TickPacket;
+        tick = data.tick;
         break;
       }
     }
@@ -49,7 +59,7 @@
 
   let gameCode: string = '', name: string = '';
 
-  function connect() {
+  function joinGame() {
     netService.sendPacket({
       id: PacketTypes.Connect,
       code: gameCode.trim(),
@@ -90,7 +100,7 @@
         class="py-2 px-4 rounded-lg bg-zinc-900 border border-zinc-800 caret-indigo-500 focus:border-indigo-500 focus:outline focus:outline-indigo-500"
       />
       <button
-        on:click={connect}
+        on:click={joinGame}
         class="py-2 px-6 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white"
       >Join</button>
     </div>
@@ -105,25 +115,13 @@
         {/each}
       </div>
     {/if}
-
-    {#if currentQuestion && currentQuestion !== null}
-      <div class="flex flex-col gap-3">
-        <h4 class="text-2xl">{currentQuestion?.name || 'No question'}</h4>
-        {#if currentQuestion.choices && currentQuestion.choices.length}
-          <div class="flex flex-col gap-2">
-            {#each currentQuestion.choices as c}
-              <button class="bg-zinc-900 hover:bg-zinc-800 py-2 px-4 rounded-lg">
-                {c.name}
-              </button>
-            {/each}
-          </div>
-        {/if}
-      </div>
-    {/if}
   {:else if state === GameState.Lobby}
     {#if host}
       <div class="flex flex-col">
-        <button on:click={startGame}>Start game</button>
+        <button
+          on:click={startGame}
+          class="bg-sky-600 hover:bg-sky-500 text-white py-2 px-6 rounded-lg"
+        >Start game</button>
         <p>Lobby state</p>
         {#if players && players.length}
           <p>Players:</p>
@@ -134,6 +132,26 @@
       </div>
     {:else}
       <p>You successfully joined game</p>
+    {/if}
+  {:else if state === GameState.Play}
+    {#if host}
+      <p>Clock: {tick}</p>
+      {#if currentQuestion && currentQuestion !== null}
+        <div class="flex flex-col gap-3">
+          <h4 class="text-2xl">{currentQuestion?.name || 'No question'}</h4>
+          {#if currentQuestion.choices && currentQuestion.choices.length}
+            <div class="flex flex-col gap-2">
+              {#each currentQuestion.choices as c}
+                <button class="bg-zinc-900 hover:bg-zinc-800 py-2 px-4 rounded-lg">
+                  {c.name}
+                </button>
+              {/each}
+            </div>
+          {/if}
+        </div>
+      {/if}
+    {:else}
+      <p>Press correct answer</p>
     {/if}
   {/if}
   </div>
