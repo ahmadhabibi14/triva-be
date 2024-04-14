@@ -6,7 +6,7 @@
 
   let quizzes: Quiz[] = [];
 
-  let currentQuestion: QuizQuestion|null = null;
+  let currentQuestion: QuizQuestion | null = null;
   let state: number = -1;
   let host: boolean = false;
   let tick: number = 0;

@@ -132,11 +132,13 @@ func (gs *GameService) OnPlayerJoin(name string, conn *websocket.Conn) {
 
 	gs.Players = append(gs.Players, player)
 
+	fmt.Println(`Players:`, gs.Players)
+
 	gs.NetService.SendPacket(conn, ChangeGameStatePacket{
 		State: gs.State,
 	})
 
-	gs.NetService.SendPacket(conn, PlayerJoinPacket{
+	gs.NetService.SendPacket(gs.Host, PlayerJoinPacket{
 		Player: player,
 	})
 }
