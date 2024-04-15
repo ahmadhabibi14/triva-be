@@ -21,6 +21,11 @@ export interface Packet {
   id: PacketTypes;
 }
 
+export interface ConnectPacket extends Packet {
+  code: string;
+  name: string;
+}
+
 export interface HostGamePacket extends Packet {
   quizId: string;
 }

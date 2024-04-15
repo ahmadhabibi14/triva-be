@@ -46,29 +46,6 @@
     }
   });
 
-  async function GetQuizzes(): Promise<void> {
-    let response: Response = await fetch('http://localhost:3000/api/quizzes');
-    if (!response.ok) {
-      alert('failed');
-      return;
-    }
-
-    let responseData: HTTPResponse = await response.json() as HTTPResponse;
-
-    let json: Quiz[] = responseData.data as Quiz[];
-    quizzes = json;
-  }
-
-  let gameCode: string = '', name: string = '';
-
-  function joinGame() {
-    netService.sendPacket({
-      id: PacketTypes.Connect,
-      code: gameCode.trim(),
-      name: name.trim()
-    })
-  }
-
   function startGame() {
     netService.sendPacket({
       id: PacketTypes.StartGame,

@@ -1,12 +1,15 @@
 <script lang="ts">
-  import type { Quiz } from "../types/quiz";
+  import { createEventDispatcher, type EventDispatcher } from 'svelte';
+  import type { Quiz } from '../types/quiz';
+  import Button from './Button.svelte';
+  
+  const dispatch: EventDispatcher<any> = createEventDispatcher();
   export let quiz: Quiz;
+  
+  const host = () => dispatch('host', quiz);
 </script>
 
 <div class="bg-zinc-900 rounded-lg py-3 px-6 flex flex-row justify-between gap-3">
   <p>{quiz.name}</p>
-  <button
-    on:click
-    class="bg-emerald-600 hover:bg-emerald-500 text-white rounded-md py-1 px-3 text-sm"
-  >Host</button>
+  <Button on:click={host}>Host</Button>
 </div>
