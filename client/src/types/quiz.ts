@@ -24,3 +24,7 @@ export type Player = {
   id: string;
   name: string;
 }
+
+export const COLORS: string[] = [
+  'bg-pink-500', 'bg-blue-500', 'bg-yellow-500', 'bg-purple-500'
+];

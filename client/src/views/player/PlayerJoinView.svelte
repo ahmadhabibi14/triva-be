@@ -16,7 +16,7 @@
 
 <div class="min-h-screen w-full flex items-center justify-center">
   <div class="flex flex-col gap-5">
-    <h2 class="font-bold text-center text-5xl">Bwizz</h2>
+    <h2 class="font-bold text-center text-5xl">Triva</h2>
     <div class="flex flex-col gap-3">
       <input
         type="text"

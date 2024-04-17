@@ -1,10 +1,10 @@
 package service
 
 import (
-	"bwizz/helper"
-	"bwizz/internal/repository/quizzes"
 	"fmt"
 	"time"
+	"triva/helper"
+	"triva/internal/repository/quizzes"
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/google/uuid"
@@ -14,6 +14,7 @@ type Player struct {
 	Id string `json:"id"`
 	Name string `json:"name"`
 	Connection *websocket.Conn `json:"-"`
+	Answered bool `json:"-"`
 }
 
 type GameState int
@@ -33,7 +34,7 @@ type GameService struct {
 	Code string `json:"code"`
 	State GameState `json:"game_state"`
 	Time int `json:"time"`
-	Players []Player
+	Players []*Player
 
 	Host *websocket.Conn `json:"-"`
 	NetService *NetService `json:"-"`
@@ -45,7 +46,7 @@ func NewGameService(quiz quizzes.Quiz, host *websocket.Conn, ns *NetService) *Ga
 		Quiz: quiz,
 		Code: helper.GenerateGameCode(),
 		Time: 60,
-		Players: []Player{},
+		Players: []*Player{},
 		State: LobbyState,
 		Host: host,
 		NetService: ns,
@@ -62,6 +63,7 @@ func (gs *GameService) Start() {
 				{
 					Id: "a",
 					Name: "4",
+					Correct: true,
 				},
 				{
 					Id: "b",
@@ -94,6 +96,20 @@ func (gs *GameService) Tick() {
 	gs.NetService.SendPacket(gs.Host, TickPacket{
 		Tick: gs.Time,
 	})
+
+	if gs.Time == 0 {
+		switch gs.State {
+		case PlayState:
+			{
+				gs.ChangeState(RevealState)
+				break
+			}
+		case RevealState:
+			{
+				break
+			}
+		}
+	}
 }
 
 func (gs *GameService) ChangeState(state GameState) {
@@ -130,7 +146,7 @@ func (gs *GameService) OnPlayerJoin(name string, conn *websocket.Conn) {
 		Connection: conn,
 	}
 
-	gs.Players = append(gs.Players, player)
+	gs.Players = append(gs.Players, &Player{})
 
 	fmt.Println(`Players:`, gs.Players)
 
@@ -141,4 +157,24 @@ func (gs *GameService) OnPlayerJoin(name string, conn *websocket.Conn) {
 	gs.NetService.SendPacket(gs.Host, PlayerJoinPacket{
 		Player: player,
 	})
+}
+
+func (gs *GameService) getAnswerPlayers() []*Player {
+	players := []*Player{}
+
+	for _, player := range gs.Players {
+		if player.Answered {
+			players = append(players, player)
+		}
+	}
+
+	return players
+}
+
+func (gs *GameService) OnPlayerAnswer(question int, player *Player) {
+	player.Answered = true
+
+	if len(gs.getAnswerPlayers()) == len(gs.Players) {
+		gs.ChangeState(RevealState)
+	}
 }

@@ -15,10 +15,3 @@ CREATE TABLE QuizChoice (
   name VARCHAR(255) NOT NULL,
   correct BOOLEAN
 );
-
-CREATE TABLE Game (
-  id VARCHAR(36) PRIMARY KEY,
-  quiz_id VARCHAR REFERENCES Quiz(id),
-  current_question INTEGER,
-  code VARCHAR
-);

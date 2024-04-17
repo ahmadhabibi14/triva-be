@@ -1,9 +1,9 @@
 package web
 
 import (
-	"bwizz/helper"
 	"os"
 	"time"
+	"triva/helper"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"

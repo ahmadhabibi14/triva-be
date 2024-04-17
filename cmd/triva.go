@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bwizz/internal"
+	"triva/internal"
 )
 
 func main() {

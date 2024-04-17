@@ -1,18 +1,18 @@
 package service
 
 import (
-	repository "bwizz/internal/repository/quizzes"
+	"triva/internal/repository/quizzes"
 )
 
 type QuizService struct {
-	quizRepository *repository.Quiz
+	quizRepository *quizzes.Quiz
 }
 
-func NewQuizService(qr *repository.Quiz) *QuizService {
+func NewQuizService(qr *quizzes.Quiz) *QuizService {
 	return &QuizService{quizRepository: qr}
 }
 
-func (s *QuizService) GetQuizzes() (quizzes []repository.Quiz, err error) {
+func (s *QuizService) GetQuizzes() (quizzes []quizzes.Quiz, err error) {
 	quizzes, err = s.quizRepository.GetQuizzes()
 
 	return

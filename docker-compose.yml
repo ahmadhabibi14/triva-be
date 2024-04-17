@@ -3,7 +3,7 @@ version: "3.9"
 services:
   postgres:
     image: postgres:16
-    container_name: bwizz-db
+    container_name: triva-db
     environment:
       POSTGRES_USER: "${POSTGRES_USER}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
@@ -14,7 +14,7 @@ services:
       - ./_docker-data/postgres:/var/lib/postgresql/data
     restart: on-failure
     networks:
-      - bwizz-network
+      - triva-network
   pgadmin:
     image: adminer
     restart: on-failure
@@ -23,7 +23,7 @@ services:
     ports:
       - 8080:8080
     networks:
-      - bwizz-network
+      - triva-network
 
 networks:
-  bwizz-network:
+  triva-network:

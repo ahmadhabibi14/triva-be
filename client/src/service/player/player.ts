@@ -1,5 +1,5 @@
 import { writable, type Writable } from 'svelte/store';
-import { GameState, NetService, PacketTypes, type ChangeGameStatePacket, type ConnectPacket, type Packet } from '../net';
+import { GameState, NetService, PacketTypes, type ChangeGameStatePacket, type ConnectPacket, type Packet, type QuestionAnswerPacket } from '../net';
 
 export const state: Writable<GameState> = writable(GameState.Lobby);
 
@@ -17,6 +17,15 @@ export class PlayerGame {
       id: PacketTypes.Connect,
       code: code,
       name: name,
+    }
+
+    this.net.sendPacket(packet);
+  }
+
+  answer(question: number) {
+    let packet: QuestionAnswerPacket = {
+      id: PacketTypes.Answer,
+      question: question,
     }
 
     this.net.sendPacket(packet);

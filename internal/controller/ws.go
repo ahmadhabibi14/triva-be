@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"bwizz/internal/service"
 	"log"
+	"triva/internal/service"
 
 	"github.com/gofiber/contrib/websocket"
 )

@@ -1,10 +1,10 @@
 package service
 
 import (
-	"bwizz/internal/repository/quizzes"
 	"errors"
 	"fmt"
 	"log"
+	"triva/internal/repository/quizzes"
 
 	"github.com/goccy/go-json"
 	"github.com/gofiber/contrib/websocket"
@@ -60,6 +60,10 @@ type TickPacket struct {
 	Tick int `json:"tick"`
 }
 
+type QuestionAnswerPacket struct {
+	Question int `json:"question"`
+}
+
 const (
 	PACKET_CONNECT uint8 = iota
 	PACKET_HOST
@@ -68,6 +72,7 @@ const (
 	PACKET_PLAYER_JOIN
 	PACKET_START_GAME
 	PACKET_TICK
+	PACKET_QUESTION_ANSWER
 )
 
 func (ns *NetService) packetIdToPacket(packetId uint8) any {
@@ -83,6 +88,10 @@ func (ns *NetService) packetIdToPacket(packetId uint8) any {
 	case PACKET_START_GAME:
 		{
 			return &StartGamePacket{}
+		}
+	case PACKET_QUESTION_ANSWER:
+		{
+			return &QuestionAnswerPacket{}
 		}
 	}
 
@@ -130,6 +139,18 @@ func (ns *NetService) getGameByHost(host *websocket.Conn) *GameService {
 	}
 
 	return nil
+}
+
+func (ns *NetService) getGameByPlayer(conn *websocket.Conn) (*GameService, *Player ){
+	for _, game := range ns.games {
+		for _, player := range game.Players {
+			if player.Connection == conn {
+				return game, player
+			}
+		}
+	}
+
+	return nil, nil
 }
 
 func (ns *NetService) OnIncomingMessage(conn *websocket.Conn, mt int, msg []byte) {
@@ -191,6 +212,16 @@ func (ns *NetService) OnIncomingMessage(conn *websocket.Conn, mt int, msg []byte
 			}
 
 			game.Start()
+			break
+		}
+	case *QuestionAnswerPacket:
+		{
+			game, player := ns.getGameByPlayer(conn)
+			if game == nil {
+				return
+			}
+
+			game.OnPlayerAnswer(data.Question, player)
 			break
 		}
 	}

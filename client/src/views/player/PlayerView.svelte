@@ -4,7 +4,7 @@
   import PlayerJoinView from './PlayerJoinView.svelte';
   import PlayerLobbyView from './PlayerLobbyView.svelte';
   import PlayerPlayView from './PlayerPlayView.svelte';
-  import { state } from '../../service/host/host';
+  import { state } from '../../service/player/player';
 
   let game: PlayerGame = new PlayerGame();
   let active: boolean = false;

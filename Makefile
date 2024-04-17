@@ -5,13 +5,13 @@ migrate:
 	migrate create -ext sql -dir database/migration $(state)
 
 migrate-up:
-	migrate -path database/migration -database "postgres://habi:habi123@localhost:5432/bwizz?sslmode=disable" -verbose up
+	migrate -path database/migration -database "postgres://habi:habi123@localhost:5432/triva?sslmode=disable" -verbose up
 
 migrate-down:
-	migrate -path database/migration -database "postgres://habi:habi123@localhost:5432/bwizz?sslmode=disable" -verbose down
+	migrate -path database/migration -database "postgres://habi:habi123@localhost:5432/triva?sslmode=disable" -verbose down
 
 build:
-	go build -o bin/bwizz cmd/bwizz.go
+	go build -o bin/triva cmd/triva.go
 
 run:
-	go run cmd/bwizz.go
+	go run cmd/triva.go

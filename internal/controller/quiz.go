@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"bwizz/helper"
-	"bwizz/internal/service"
+	"triva/helper"
+	"triva/internal/service"
 
 	"github.com/gofiber/fiber/v2"
 )

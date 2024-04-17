@@ -1,15 +1,16 @@
 package internal
 
 import (
-	"bwizz/configs"
-	"bwizz/internal/controller"
-	"bwizz/internal/repository/quizzes"
-	"bwizz/internal/service"
-	"bwizz/internal/web"
 	"log"
+	"triva/configs"
+	"triva/internal/controller"
+	"triva/internal/repository/quizzes"
+	"triva/internal/service"
+	"triva/internal/web"
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -34,6 +35,8 @@ func (a *App) setupHTTP() {
 	app := web.NewWebserver()
 	middleware := web.NewMiddlewares(app)
 	middleware.Init()
+
+	app.Use(recover.New())
 
 	quizController := controller.NewQuizController(a.quizService)
 	app.Get("/api/quizzes", quizController.GetQuizzes)
