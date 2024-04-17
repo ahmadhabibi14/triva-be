@@ -23,7 +23,7 @@
   })();
 </script>
 
-<div class="p-8">
+<div class="p-8 max-w-7xl mx-auto">
   <h2 class="text-4xl font-bold">Your Quizzes</h2>
   <div class="flex flex-col gap-2 mt-4">
     {#each quizzes as quiz (quiz.id)}

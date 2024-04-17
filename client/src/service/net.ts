@@ -1,4 +1,4 @@
-import type { Player } from '../types/quiz';
+import type { Player, QuizQuestion } from '../types/quiz';
 
 export enum PacketTypes {
   Connect,
@@ -40,7 +40,11 @@ export interface PlayerJoinPacket extends Packet {
 
 export interface TickPacket extends Packet {
   tick: number;
-} 
+}
+
+export interface QuestionShowPacket extends Packet {
+  question: QuizQuestion;
+}
 
 export class NetService {
   private websocket!: WebSocket;
