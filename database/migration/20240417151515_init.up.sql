@@ -1,0 +1,17 @@
+CREATE TABLE Quiz (
+  id VARCHAR(36) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE QuizQuestion (
+  id VARCHAR(36) PRIMARY KEY,
+  quiz_id VARCHAR(36) REFERENCES Quiz(id),
+  name VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE QuizChoice (
+  id VARCHAR(36) PRIMARY KEY,
+  question_id VARCHAR(36) REFERENCES QuizQuestion(id),
+  name VARCHAR(255) NOT NULL,
+  correct BOOLEAN
+);

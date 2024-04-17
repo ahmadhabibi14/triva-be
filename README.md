@@ -12,7 +12,7 @@
 sudo systemctl start docker
 docker-compose up -d
 
-docker exec -it triva-db psql -U habi triva -W
+docker exec -it triva-db psql -U habi -d triva -W
 
 make migrate state=migration_state
 make migrate-up

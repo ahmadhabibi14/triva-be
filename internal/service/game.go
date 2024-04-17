@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"math"
 	"time"
 	"triva/helper"
 	"triva/internal/repository/quizzes"
@@ -11,10 +12,12 @@ import (
 )
 
 type Player struct {
-	Id string `json:"id"`
-	Name string `json:"name"`
-	Connection *websocket.Conn `json:"-"`
-	Answered bool `json:"-"`
+	Id 								string					`json:"id"`
+	Name							string					`json:"name"`
+	Connection				*websocket.Conn	`json:"-"`
+	Points						int							`json:"-"`
+	LastAwardedPoints	int							`json:"-"`
+	Answered 					bool						`json:"-"`
 }
 
 type GameState int
@@ -31,6 +34,7 @@ const TABLE_Game string = `Game`
 type GameService struct {
 	Id string `json:"id"`
 	Quiz quizzes.Quiz `json:"quiz"`
+	CurrentQuestion int `json:"current_question"`
 	Code string `json:"code"`
 	State GameState `json:"game_state"`
 	Time int `json:"time"`
@@ -44,6 +48,7 @@ func NewGameService(quiz quizzes.Quiz, host *websocket.Conn, ns *NetService) *Ga
 	return &GameService{
 		Id: uuid.New().String(),
 		Quiz: quiz,
+		CurrentQuestion: -1,
 		Code: helper.GenerateGameCode(),
 		Time: 60,
 		Players: []*Player{},
@@ -55,31 +60,7 @@ func NewGameService(quiz quizzes.Quiz, host *websocket.Conn, ns *NetService) *Ga
 
 func (gs *GameService) Start() {
 	gs.ChangeState(PlayState)
-	gs.NetService.SendPacket(gs.Host, QuestionShowPacket{
-		Question: quizzes.QuizQuestion{
-			Id: "",
-			Name: "What is 2 + 2?",
-			Choices: []quizzes.QuizChoice{
-				{
-					Id: "a",
-					Name: "4",
-					Correct: true,
-				},
-				{
-					Id: "b",
-					Name: "5",
-				},
-				{
-					Id: "c",
-					Name: "6",
-				},
-				{
-					Id: "d",
-					Name: "7",
-				},
-			},
-		},
-	})
+	gs.NextQuestion()
 
 	go func ()  {
 		defer helper.Recover()
@@ -89,6 +70,35 @@ func (gs *GameService) Start() {
 			time.Sleep(time.Second)
 		}
 	}()
+}
+
+func (gs *GameService) ResetPlayerAnswerStates() {
+	for _, player := range gs.Players {
+		player.Answered = false
+	}
+}
+
+func (gs *GameService) NextQuestion() {
+	gs.CurrentQuestion++
+
+	gs.ResetPlayerAnswerStates()
+	gs.ChangeState(PlayState)
+	gs.Time = 60
+
+	gs.NetService.SendPacket(gs.Host, QuestionShowPacket{
+		Question: gs.getCurrentQuestion(),
+	})
+}
+
+func (gs *GameService) Reveal() {
+	gs.Time = 10
+	for _, player := range gs.Players {
+		gs.NetService.SendPacket(player.Connection, PlayerRevealPacket{
+			Points: player.LastAwardedPoints,
+		})
+	}
+
+	gs.ChangeState(RevealState)
 }
 
 func (gs *GameService) Tick() {
@@ -106,6 +116,7 @@ func (gs *GameService) Tick() {
 			}
 		case RevealState:
 			{
+				gs.NextQuestion()
 				break
 			}
 		}
@@ -171,10 +182,35 @@ func (gs *GameService) getAnswerPlayers() []*Player {
 	return players
 }
 
-func (gs *GameService) OnPlayerAnswer(question int, player *Player) {
+func (gs *GameService) getCurrentQuestion() quizzes.QuizQuestion {
+	return gs.Quiz.Questions[gs.CurrentQuestion]
+}
+
+func (gs *GameService) isCorrectChoice(choiceIndex int) bool {
+	choices := gs.getCurrentQuestion().Choices
+	if choiceIndex < 0 || choiceIndex >= len(choices) {
+		return false
+	}
+
+	return choices[choiceIndex].Correct
+}
+
+func (gs *GameService) getPointsReward() int {
+	answered := len(gs.getAnswerPlayers())
+	orderReward := 5000 - (1000 * math.Min(4, float64(answered)))
+	timeReward := gs.Time * (1000 / 60)
+
+	return int(orderReward) + timeReward
+}
+
+func (gs *GameService) OnPlayerAnswer(choice int, player *Player) {
+	if gs.isCorrectChoice(choice) {
+		player.LastAwardedPoints = gs.getPointsReward()
+		player.Points += player.LastAwardedPoints
+	}
 	player.Answered = true
 
 	if len(gs.getAnswerPlayers()) == len(gs.Players) {
-		gs.ChangeState(RevealState)
+		gs.Reveal()
 	}
 }

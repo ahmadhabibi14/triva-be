@@ -9,6 +9,7 @@ export enum PacketTypes {
   StartGame,
   Tick,
   Answer,
+  PlayerReveal,
 }
 
 export enum GameState {
@@ -49,6 +50,10 @@ export interface QuestionShowPacket extends Packet {
 
 export interface QuestionAnswerPacket extends Packet {
   question: number;
+}
+
+export interface PlayerRevealPacket extends Packet {
+  points: number;
 }
 
 export class NetService {
