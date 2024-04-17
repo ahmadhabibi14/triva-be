@@ -1,4 +1,4 @@
-### Kahoot clone
+### Triva - Quiz App
 
 **Tech Stack :**
 1. Svelte
