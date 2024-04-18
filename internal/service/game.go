@@ -25,6 +25,7 @@ type GameState int
 const (
 	LobbyState GameState = iota
 	PlayState
+	IntermissionState
 	RevealState
 	EndState
 )
@@ -37,6 +38,7 @@ type GameService struct {
 	CurrentQuestion int `json:"current_question"`
 	Code string `json:"code"`
 	State GameState `json:"game_state"`
+	Ended bool `json:"ended"`
 	Time int `json:"time"`
 	Players []*Player
 
@@ -66,6 +68,9 @@ func (gs *GameService) Start() {
 		defer helper.Recover()
 
 		for {
+			if gs.Ended {
+				return
+			}
 			gs.Tick()
 			time.Sleep(time.Second)
 		}
@@ -78,8 +83,18 @@ func (gs *GameService) ResetPlayerAnswerStates() {
 	}
 }
 
+func (gs *GameService) End() {
+	gs.Ended = true
+	gs.ChangeState(EndState)
+}
+
 func (gs *GameService) NextQuestion() {
 	gs.CurrentQuestion++
+
+	if gs.CurrentQuestion >= len(gs.Quiz.Questions) {
+		gs.End()
+		return
+	}
 
 	gs.ResetPlayerAnswerStates()
 	gs.ChangeState(PlayState)
@@ -207,6 +222,8 @@ func (gs *GameService) OnPlayerAnswer(choice int, player *Player) {
 	if gs.isCorrectChoice(choice) {
 		player.LastAwardedPoints = gs.getPointsReward()
 		player.Points += player.LastAwardedPoints
+	} else {
+		player.LastAwardedPoints = 0
 	}
 	player.Answered = true
 

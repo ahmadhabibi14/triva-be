@@ -2,6 +2,7 @@
   import { HostGame, state } from '../../service/host/host';
   import { GameState } from '../../service/net';
   import type { Quiz } from '../../types/quiz';
+  import HostIntermissionView from './HostIntermissionView.svelte';
   import HostLobbyView from './HostLobbyView.svelte';
   import HostPlayView from './HostPlayView.svelte';
   import HostQuizListView from './HostQuizListView.svelte';
@@ -17,6 +18,7 @@
   let views: Record<GameState, any> = {
     [GameState.Lobby]: HostLobbyView,
     [GameState.Play]: HostPlayView,
+    [GameState.Intermission]: HostIntermissionView,
     [GameState.Reveal]: HostPlayView
   }
 </script>

@@ -31,42 +31,48 @@ func NewNetService(qs *QuizService, db *sqlx.DB) *NetService {
 }
 }
 
-type ConnectPacket struct {
-	Code string `json:"code"`
-	Name string `json:"name"`
-}
+type (
+	ConnectPacket struct {
+		Code string `json:"code"`
+		Name string `json:"name"`
+	}
 
-type HostGamePacket struct {
-	QuizId string `json:"quizId"`
-}
+	HostGamePacket struct {
+		QuizId string `json:"quizId"`
+	}
 
-type QuestionShowPacket struct {
-	Question quizzes.QuizQuestion `json:"question"`
-}
+	QuestionShowPacket struct {
+		Question quizzes.QuizQuestion `json:"question"`
+	}
 
-type ChangeGameStatePacket struct {
-	State GameState `json:"state"`
-}
+	ChangeGameStatePacket struct {
+		State GameState `json:"state"`
+	}
 
-type PlayerJoinPacket struct {
-	Player Player `json:"player"`
-}
+	PlayerJoinPacket struct {
+		Player Player `json:"player"`
+	}
 
-type StartGamePacket struct {
+	StartGamePacket struct {
 
-}
+	}
 
-type TickPacket struct {
-	Tick int `json:"tick"`
-}
+	TickPacket struct {
+		Tick int `json:"tick"`
+	}
 
-type QuestionAnswerPacket struct {
-	Question int `json:"question"`
-}
+	QuestionAnswerPacket struct {
+		Question int `json:"question"`
+	}
 
-type PlayerRevealPacket struct {
-	Points int `json:"points"`
-}
+	PlayerRevealPacket struct {
+		Points int `json:"points"`
+	}
+
+	LeaderboardPacket struct {
+		Points map[string]int `json:"points"`
+	}
+)
 
 const (
 	PACKET_CONNECT uint8 = iota
@@ -78,6 +84,7 @@ const (
 	PACKET_TICK
 	PACKET_QUESTION_ANSWER
 	PACKET_PLAYER_REVEAL
+	PACKET_LEADERBOARD
 )
 
 func (ns *NetService) packetIdToPacket(packetId uint8) any {
@@ -124,6 +131,10 @@ func (ns *NetService) packetToPacketId(packet any) (uint8, error) {
 	case PlayerRevealPacket:
 		{
 			return PACKET_PLAYER_REVEAL, nil
+		}
+	case LeaderboardPacket:
+		{
+			return PACKET_LEADERBOARD, nil
 		}
 	}
 
