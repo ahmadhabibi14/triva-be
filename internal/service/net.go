@@ -231,7 +231,7 @@ func (ns *NetService) OnIncomingMessage(conn *websocket.Conn, mt int, msg []byte
 				return
 			}
 
-			game.Start()
+			game.StartOrSkip()
 			break
 		}
 	case *QuestionAnswerPacket:

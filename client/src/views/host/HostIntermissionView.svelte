@@ -1,14 +1,19 @@
 <script lang="ts">
-  import { leaderboard } from '../../service/host/host';
+  import Leaderboard from '../../lib/Leaderboard.svelte';
+  import { HostGame, leaderboard } from '../../service/host/host';
+
+  export let game: HostGame;
+
+  function skip() {
+    game.start();
+  }
 </script>
 
 <div class="p-8 bg-purple-500 min-h-screen w-full flex flex-col gap-6">
   <div>
-    <button class="bg-zinc-800 py-2 px-4 rounded-lg">Skip</button>
+    <button class="bg-zinc-800 py-2 px-4 rounded-lg" on:click={skip}>Skip</button>
   </div>
   <div>
-    {#each $leaderboard as entry}
-      <p>{entry.name} - {entry.points}</p>
-    {/each}
+    <Leaderboard leaderboard={$leaderboard} />
   </div>
 </div>
