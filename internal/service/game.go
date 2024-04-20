@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"math"
+	"sort"
 	"time"
 	"triva/helper"
 	"triva/internal/repository/quizzes"
@@ -29,6 +30,11 @@ const (
 	RevealState
 	EndState
 )
+
+type LeaderboardEntry struct {
+	Name string `json:"name"`
+	Points int `json:"points"`
+}
 
 const TABLE_Game string = `Game` 
 
@@ -57,6 +63,14 @@ func NewGameService(quiz quizzes.Quiz, host *websocket.Conn, ns *NetService) *Ga
 		State: LobbyState,
 		Host: host,
 		NetService: ns,
+	}
+}
+
+func (gs *GameService) StartOrSkip() {
+	if gs.State == LobbyState {
+		gs.Start()
+	} else {
+		gs.NextQuestion()
 	}
 }
 
@@ -106,7 +120,7 @@ func (gs *GameService) NextQuestion() {
 }
 
 func (gs *GameService) Reveal() {
-	gs.Time = 10
+	gs.Time = 5
 	for _, player := range gs.Players {
 		gs.NetService.SendPacket(player.Connection, PlayerRevealPacket{
 			Points: player.LastAwardedPoints,
@@ -131,11 +145,40 @@ func (gs *GameService) Tick() {
 			}
 		case RevealState:
 			{
-				gs.NextQuestion()
+				gs.Intermission()
 				break
+			}
+		case IntermissionState:
+			{
+				gs.NextQuestion()
 			}
 		}
 	}
+}
+
+func (gs *GameService) Intermission() {
+	gs.Time = 30
+	gs.ChangeState(IntermissionState)
+	gs.NetService.SendPacket(gs.Host, LeaderboardPacket{
+		Points: gs.getLeaderboard(),
+	})
+}
+
+func (gs *GameService) getLeaderboard() []LeaderboardEntry {
+	sort.Slice(gs.Players, func(i, j int) bool {
+		return gs.Players[i].Points > gs.Players[j].Points
+	})
+
+	leaderboard := []LeaderboardEntry{}
+	for i := 0; i < int(math.Min(3, float64(len(gs.Players)))); i++ {
+		player := gs.Players[i]
+		leaderboard = append(leaderboard, LeaderboardEntry{
+			Name: player.Name,
+			Points: player.Points,
+		})
+	}
+
+	return leaderboard
 }
 
 func (gs *GameService) ChangeState(state GameState) {

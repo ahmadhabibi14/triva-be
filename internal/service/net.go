@@ -70,7 +70,7 @@ type (
 	}
 
 	LeaderboardPacket struct {
-		Points map[string]int `json:"points"`
+		Points []LeaderboardEntry `json:"points"`
 	}
 )
 

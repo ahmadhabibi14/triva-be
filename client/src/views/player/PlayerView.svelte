@@ -5,6 +5,7 @@
   import PlayerLobbyView from './PlayerLobbyView.svelte';
   import PlayerPlayView from './PlayerPlayView.svelte';
   import { state } from '../../service/player/player';
+  import PlayerRevealView from './PlayerRevealView.svelte';
 
   let game: PlayerGame = new PlayerGame();
   let active: boolean = false;
@@ -14,6 +15,7 @@
   let views: Record<GameState, any> = {
     [GameState.Lobby]: PlayerLobbyView,
     [GameState.Play]: PlayerPlayView,
+    [GameState.Reveal]: PlayerRevealView,
   }
 </script>
 

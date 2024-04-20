@@ -58,8 +58,13 @@ export interface PlayerRevealPacket extends Packet {
   points: number;
 }
 
+export interface LeaderboardEntry {
+  name: string;
+  points: number;
+}
+
 export interface LeaderboardPacket extends Packet {
-  points: Record<string, number>;
+  points: LeaderboardEntry[];
 }
 
 export class NetService {
