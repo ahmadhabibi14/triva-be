@@ -1,3 +1,4 @@
 _docker-data
 
 bin/triva
+tmp/main
