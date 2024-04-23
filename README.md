@@ -17,4 +17,5 @@ docker exec -it triva-db psql -U habi -d triva -W
 make migrate state=migration_state
 make migrate-up
 make migrate-down
+make migrate-fix version=migration_version
 ```
