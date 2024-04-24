@@ -38,6 +38,9 @@ func (a *App) setupHTTP() {
 
 	app.Use(recover.New())
 
+	authController := controller.NewAuthController()
+	app.Post("/api/auth/login", authController.Login)
+
 	quizController := controller.NewQuizController(a.quizService)
 	app.Get("/api/quizzes", quizController.GetQuizzes)
 
