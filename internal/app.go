@@ -8,23 +8,29 @@ import (
 	"triva/internal/service"
 	"triva/internal/web"
 
+	"github.com/go-redis/redis"
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/jmoiron/sqlx"
+	"github.com/rs/zerolog"
 )
 
 type App struct{
 	httpServer *fiber.App
 	db *sqlx.DB
+	rd *redis.Client
+	log *zerolog.Logger
 
 	quizService *service.QuizService
 	netService *service.NetService
 }
 
 func (a *App) Init() {
+	a.setupLogger()
 	a.setupEnv()
 	a.setupDB()
+	a.setupRedis()
 	a.setupServices()
 	a.setupHTTP()
 
@@ -58,15 +64,30 @@ func (a *App) setupServices() {
 func (a *App) setupDB() {
 	db, err := configs.ConnectPostgresSQL()
 	if err != nil {
-    panic("failed to connect to database")
+    a.log.Panic().Str("error", err.Error()).Msg("failed to connect to database")
   }
 	a.db = db
+}
+
+func (a *App) setupRedis() {
+	rd := configs.NewRedisClient()
+
+	_, err := rd.Ping().Result()
+	if err != nil {
+		a.log.Panic().Str("error", err.Error()).Msg("failed to connect redis")
+	}
+	
+	a.rd = rd
 }
 
 func (a *App) setupEnv() {
 	envFilePath := ".env"
   err := configs.LoadEnv(envFilePath)
 	if err != nil {
-		panic("cannot load "+envFilePath)
+		a.log.Panic().Str("error", err.Error()).Msg("cannot load "+envFilePath)
 	}
+}
+
+func (a *App) setupLogger() {
+	a.log = configs.NewLogger()
 }
