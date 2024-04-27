@@ -1,16 +1,13 @@
 <script lang="ts">
-  import type { Player, Quiz, QuizQuestion } from './types/quiz';
-  import type { HTTPResponse } from './types/http';
-  import { NetService, PacketTypes, type ChangeGameStatePacket, GameState, type PlayerJoinPacket, type TickPacket } from './service/net';
+  import type { Player, QuizQuestion } from './types/quiz';
+  import { NetService, PacketTypes, type ChangeGameStatePacket, type PlayerJoinPacket, type TickPacket } from './service/net';
+  import GuestView from './views/guest/GuestView.svelte';
   import PlayerView from './views/player/PlayerView.svelte';
   import HostView from './views/host/HostView.svelte';
   import Router from 'svelte-spa-router';
 
-  let quizzes: Quiz[] = [];
-
   let currentQuestion: QuizQuestion | null = null;
   let state: number = -1;
-  let host: boolean = false;
   let tick: number = 0;
 
   let players: Player[] = [];
@@ -46,22 +43,9 @@
     }
   });
 
-  function startGame() {
-    netService.sendPacket({
-      id: PacketTypes.StartGame,
-    })
-  }
-
-  function hostQuiz(quiz: Quiz) {
-    host = true;
-    netService.sendPacket({
-      id: PacketTypes.HostGame,
-      quizId: quiz.id
-    });
-  }
-
   let routes = {
-    '/': PlayerView,
+    '/': GuestView,
+    '/player': PlayerView,
     '/host': HostView
   };
 </script>

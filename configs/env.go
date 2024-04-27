@@ -4,7 +4,15 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func LoadEnv(envFile string) error {
-	err := godotenv.Load(envFile)
-	return err
+func LoadEnv() {
+	dirRetryList := []string{``, `../`, `../../`, `../../../`}
+	var err error
+	for _, dirPrefix := range dirRetryList {
+		envFile := dirPrefix + `.env`
+		err = godotenv.Overload(envFile)
+		if err == nil {
+			return
+		}
+	}
+	panic("cannot load .env file")
 }

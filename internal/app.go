@@ -2,6 +2,7 @@ package internal
 
 import (
 	"log"
+	"os"
 	"triva/configs"
 	"triva/internal/controller"
 	"triva/internal/repository/quizzes"
@@ -27,14 +28,14 @@ type App struct{
 }
 
 func (a *App) Init() {
-	a.setupLogger()
 	a.setupEnv()
+	a.setupLogger()
 	a.setupDB()
 	a.setupRedis()
 	a.setupServices()
 	a.setupHTTP()
 
-	log.Fatal(a.httpServer.Listen(":3000"))
+	log.Fatal(a.httpServer.Listen(":"+os.Getenv("WEB_PORT")))
 }
 
 func (a *App) setupHTTP() {
@@ -81,11 +82,7 @@ func (a *App) setupRedis() {
 }
 
 func (a *App) setupEnv() {
-	envFilePath := ".env"
-  err := configs.LoadEnv(envFilePath)
-	if err != nil {
-		a.log.Panic().Str("error", err.Error()).Msg("cannot load "+envFilePath)
-	}
+  configs.LoadEnv()
 }
 
 func (a *App) setupLogger() {
