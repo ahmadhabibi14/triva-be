@@ -9,6 +9,9 @@ import (
 
 func TestConnectRedis(t *testing.T) {
 	rd := configs.NewRedisClient()
-	_, err := rd.Ping().Result()
-	assert.NotNil(t, err, `failed to connect redis`)
+	pong, err := rd.Ping().Result()
+
+	assert.Nil(t, err, `failed to connect redis`)
+
+	t.Log(`connected to redis:`, pong)
 }
