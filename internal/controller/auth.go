@@ -21,9 +21,35 @@ func NewAuthController(authService *service.AuthService) *AuthController {
 	return &AuthController{authService: authService}
 }
 
+type (
+	LoginIn struct {
+		Username string `json:"username" form:"username" validate:"required,omitempty,min=5"`
+		Password string `json:"password" form:"password" validate:"required,min=8"`
+	}
+	LoginOut struct {
+		Session string `json:"session" form:"session"`
+		Message string `json:"message" form:"message"`
+	}
+)
+
 func (ac *AuthController) Login(ctx *fiber.Ctx) error {
-	ac.setCookie(ctx, `---`)
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{`ok`: true})
+	in, err := helper.ReadJSON[LoginIn](ctx, ctx.Body())
+	if err != nil {
+		response := helper.NewHTTPResponse(fiber.StatusBadRequest, err.Error())
+		return ctx.Status(fiber.StatusBadRequest).JSON(response)
+	}
+
+	sessionKey, err := ac.authService.Login(in.Username, in.Password)
+	if err != nil {
+		response := helper.NewHTTPResponse(fiber.StatusBadRequest, err.Error())
+		return ctx.Status(fiber.StatusBadRequest).JSON(response)
+	}
+
+	ac.setCookie(ctx, sessionKey)
+
+	out := LoginOut{Session: sessionKey, Message: `login successful !`}
+	response := helper.NewHTTPResponse(fiber.StatusCreated, ``, out)
+	return ctx.Status(fiber.StatusOK).JSON(response)
 }
 
 type (
