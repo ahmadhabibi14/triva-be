@@ -23,6 +23,7 @@ type App struct{
 	rd *redis.Client
 	log *zerolog.Logger
 
+	authService *service.AuthService
 	quizService *service.QuizService
 	netService *service.NetService
 }
@@ -45,8 +46,9 @@ func (a *App) setupHTTP() {
 
 	app.Use(recover.New())
 
-	authController := controller.NewAuthController()
+	authController := controller.NewAuthController(a.authService)
 	app.Post("/api/auth/login", authController.Login)
+	app.Post("/api/auth/register", authController.Register)
 
 	quizController := controller.NewQuizController(a.quizService)
 	app.Get("/api/quizzes", quizController.GetQuizzes)
@@ -58,6 +60,7 @@ func (a *App) setupHTTP() {
 }
 
 func (a *App) setupServices() {
+	a.authService = service.NewAuthService(a.db, a.rd)
 	a.quizService = service.NewQuizService(quizzes.NewQuizMutator(a.db))
 	a.netService = service.NewNetService(a.quizService, a.db)
 }

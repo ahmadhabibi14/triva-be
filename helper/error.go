@@ -1,6 +1,8 @@
 package helper
 
-import "log"
+import (
+	"log"
+)
 
 func Recover() {
 	if rec := recover(); rec != nil {

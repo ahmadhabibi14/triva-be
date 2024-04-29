@@ -1,10 +1,16 @@
 package users
 
 import (
+	"database/sql"
+	"errors"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 )
+
+const TABLE_User = `Users`
 
 type User struct {
 	DB *sqlx.DB `db:"-" json:"-"`
@@ -24,3 +30,29 @@ type User struct {
 }
 
 func NewUserMutator(db *sqlx.DB) *User { return &User{DB: db} }
+
+func (u *User) CreateUser() error {
+	query := `INSERT INTO ` + TABLE_User +` (id, username, full_name, email, password, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING username`
+	
+	uid := uuid.New().String()
+	if err := u.DB.QueryRowx(query,
+		uid, u.Username, u.FullName, u.Email, u.Password,
+		time.Now(), time.Now(),
+	).StructScan(u); err != nil {
+		pgErr, ok := err.(*pq.Error)
+		if ok && pgErr.Code == `23505` {
+			return errors.New(`email or username is already in use`)
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (u *User) FindUsernamePassword() bool {
+	query := `SELECT username, password FROM ` + TABLE_User + ` WHERE username = $1`
+	err := u.DB.Get(u, query, u.Username)
+	
+	return !errors.Is(err, sql.ErrNoRows)
+}
