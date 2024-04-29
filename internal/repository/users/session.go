@@ -1,6 +1,10 @@
 package users
 
-import "time"
+import (
+	"time"
+
+	"github.com/goccy/go-json"
+)
 
 const (
 	SESSION_PREFIX 	= `session:`
@@ -19,4 +23,20 @@ func NewSession(userId, username string, authenticated bool) *Session {
 		Username: username,
 		Authenticated: authenticated,
 	}
+}
+
+func NewSessionJSON(userId, username string, authenticated bool) ([]byte, error) {
+	session := &Session{
+		UserID: userId,
+		Username: username,
+		Authenticated: authenticated,
+	}
+
+	sessionJson, err := json.Marshal(session)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return sessionJson, nil
 }
