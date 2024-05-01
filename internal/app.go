@@ -44,11 +44,15 @@ func (a *App) setupHTTP() {
 	middleware.Init()
 
 	authController := controller.NewAuthController(a.authService)
-	app.Post("/api/auth/login", authController.Login)
-	app.Post("/api/auth/register", authController.Register)
+	app.Route(authController.AuthPrefix, func(app fiber.Router) {
+		app.Post(controller.LoginAction, authController.Login)
+		app.Post(controller.RegisterAction, authController.Register)
+	})
 
 	quizController := controller.NewQuizController(a.quizService)
-	app.Get("/api/quizzes", quizController.GetQuizzes)
+	app.Route(quizController.QuizPrefix, func(app fiber.Router) {
+		app.Get(controller.GetQuizzesAction, quizController.GetQuizzes)
+	})
 
 	wsController := controller.NewWebsocketController(a.netService)
 	app.Get("/ws", websocket.New(wsController.WS))

@@ -8,12 +8,20 @@ import (
 )
 
 type QuizController struct {
+	QuizPrefix  string
 	quizService *service.QuizService
 }
 
 func NewQuizController(qs *service.QuizService) *QuizController {
-	return &QuizController{quizService: qs}
+	return &QuizController{
+		QuizPrefix:  `/quiz`,
+		quizService: qs,
+	}
 }
+
+const (
+	GetQuizzesAction = `/quizzes`
+)
 
 func (qc *QuizController) GetQuizzes(ctx *fiber.Ctx) error {
 	quizzes, err := qc.quizService.GetQuizzes()

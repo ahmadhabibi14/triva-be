@@ -23,9 +23,14 @@ func TestAuth(t *testing.T) {
 	middleware := web.NewMiddlewares(app, LOG)
 	middleware.Init()
 
+	var (
+		loginPath    string = authController.AuthPrefix + controller.LoginAction
+		registerPath string = authController.AuthPrefix + controller.RegisterAction
+	)
+
 	// Routes
-	app.Post(controller.LoginAction, authController.Login)
-	app.Post(controller.RegisterAction, authController.Register)
+	app.Post(loginPath, authController.Login)
+	app.Post(registerPath, authController.Register)
 
 	// MISC config
 	timeOut := 10 * time.Second
@@ -39,7 +44,7 @@ func TestAuth(t *testing.T) {
 		jsonPayload, err := json.Marshal(payload)
 		assert.Nil(t, err, `failed to marshal payload`)
 
-		req := httptest.NewRequest(fiber.MethodPost, controller.LoginAction, bytes.NewBuffer(jsonPayload))
+		req := httptest.NewRequest(fiber.MethodPost, loginPath, bytes.NewBuffer(jsonPayload))
 		req.Header.Set(fiber.HeaderContentType, fiber.MIMEApplicationJSON)
 
 		resp, err := app.Test(req, int(timeOut))

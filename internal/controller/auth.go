@@ -14,11 +14,15 @@ const (
 )
 
 type AuthController struct {
+	AuthPrefix  string
 	authService *service.AuthService
 }
 
 func NewAuthController(authService *service.AuthService) *AuthController {
-	return &AuthController{authService: authService}
+	return &AuthController{
+		AuthPrefix:  `/api/auth`,
+		authService: authService,
+	}
 }
 
 type (
@@ -33,7 +37,7 @@ type (
 )
 
 const (
-	LoginAction = `/api/auth/login`
+	LoginAction = `/login`
 	LoginOkMsg  = `login successful !`
 )
 
@@ -70,7 +74,7 @@ type (
 )
 
 const (
-	RegisterAction = `/api/auth/register`
+	RegisterAction = `/register`
 	RegisterOkMsg  = `user created !`
 )
 
