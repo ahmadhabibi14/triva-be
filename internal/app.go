@@ -40,7 +40,7 @@ func (a *App) Init() {
 
 func (a *App) setupHTTP() {
 	app := web.NewWebserver()
-	middleware := web.NewMiddlewares(app, a.log)
+	middleware := web.NewMiddlewares(app, a.log, a.rd)
 	middleware.Init()
 
 	authController := controller.NewAuthController(a.authService)

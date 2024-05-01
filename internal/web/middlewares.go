@@ -5,7 +5,9 @@ import (
 	"time"
 	"triva/configs"
 	"triva/helper"
+	"triva/internal/controller"
 
+	"github.com/go-redis/redis"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
@@ -17,17 +19,22 @@ import (
 type Middlewares struct {
 	app *fiber.App
 	log *zerolog.Logger
+	rd  *redis.Client
 }
 
-func NewMiddlewares(app *fiber.App, log *zerolog.Logger) *Middlewares {
+func NewMiddlewares(app *fiber.App, log *zerolog.Logger, rd *redis.Client) *Middlewares {
 	return &Middlewares{
-		app: app}
+		app: app,
+		log: log,
+		rd:  rd,
+	}
 }
 
 func (m *Middlewares) Init() {
 	m.RateLimiter()
 	m.Cors()
 	m.Logger()
+	m.Recover()
 }
 
 func (m *Middlewares) RateLimiter() {
@@ -83,4 +90,17 @@ func (m *Middlewares) Recover() {
 			m.log.Error().Str("path", c.Path()).Err(e.(error)).Msg("received unexpected panic error")
 		},
 	}))
+}
+
+func (m *Middlewares) Auth() {
+	m.app.Use(func(c *fiber.Ctx) error {
+		sessionId := c.Cookies(controller.AUTH_COOKIE, ``)
+		apiKey := c.Get("X-API-KEY", ``)
+
+		// TODO
+		if len(sessionId) == 0 && len(apiKey) == 0 {
+			return c.Next()
+		}
+		return c.Next()
+	})
 }
