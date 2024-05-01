@@ -2,6 +2,7 @@ package users
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -14,49 +15,40 @@ const (
 )
 
 type Session struct {
-	UserID        string `json:"user_id"`
-	Username      string `json:"username"`
-	Authenticated bool   `json:"authenticated"`
+	RD						*redis.Client `json:"-"` 
+	UserID        string				`json:"user_id"`
+	Username      string				`json:"username"`
 }
 
-func NewSession(userId, username string, authenticated bool) *Session {
-	return &Session{
-		UserID:        userId,
-		Username:      username,
-		Authenticated: authenticated,
+func NewSessionMutator(rd *redis.Client) *Session { return &Session{RD: rd} }
+
+func (s *Session) SetSession(sessionKey, userId, username string) error {
+	s.UserID = userId
+	s.Username = username
+
+	sessionJSON, err := json.Marshal(&s)
+	if err != nil {
+		return errors.New(`failed to marshal session data`)
 	}
+
+	err = s.RD.Set(SESSION_PREFIX + sessionKey, sessionJSON, SESSION_EXPIRED).Err()
+	if err != nil {
+		return fmt.Errorf(`failed to set session: %v`, err)
+	}
+
+	return nil
 }
 
-func NewSessionJSON(userId, username string, authenticated bool) ([]byte, error) {
-	session := &Session{
-		UserID:        userId,
-		Username:      username,
-		Authenticated: authenticated,
-	}
-
-	sessionJson, err := json.Marshal(session)
-
+func (s *Session) GetSession(sessionKey string) error {
+	sessionData, err := s.RD.Get(SESSION_PREFIX + sessionKey).Result()
 	if err != nil {
-		return nil, err
+		return errors.New(`session not found`)
 	}
 
-	return sessionJson, nil
-}
-
-func GetSessionData(sessionId string, rds *redis.Client) (userSession Session, err error) {
-	sessionKey := SESSION_PREFIX + sessionId
-
-	userData, err := rds.Get(sessionKey).Result()
+	err = json.Unmarshal([]byte(sessionData), s)
 	if err != nil {
-		err = errors.New(`session not found`)
-		return
+		return errors.New(`invalid session data`)
 	}
 
-	err = json.Unmarshal([]byte(userData), &userSession)
-	if err != nil {
-		err = errors.New(`invalid session data`)
-		return
-	}
-
-	return
+	return nil
 }

@@ -5,7 +5,7 @@ import (
 	"time"
 	"triva/configs"
 	"triva/helper"
-	"triva/internal/controller"
+	"triva/internal/repository/users"
 
 	"github.com/go-redis/redis"
 	"github.com/gofiber/fiber/v2"
@@ -41,14 +41,14 @@ func (m *Middlewares) RateLimiter() {
 	m.app.Use(limiter.New(limiter.Config{
 		Max:        300,
 		Expiration: 2 * time.Minute,
-		KeyGenerator: func(c *fiber.Ctx) string {
-			return c.IP()
+		KeyGenerator: func(ctx *fiber.Ctx) string {
+			return ctx.IP()
 		},
-		LimitReached: func(c *fiber.Ctx) error {
+		LimitReached: func(ctx *fiber.Ctx) error {
 			var errMessage string = "You have exceeded your rate limit. Please try again a few minutes later."
 
 			response := helper.NewHTTPResponse(fiber.StatusTooManyRequests, errMessage, "")
-			return c.Status(fiber.StatusTooManyRequests).JSON(response)
+			return ctx.Status(fiber.StatusTooManyRequests).JSON(response)
 		},
 	}))
 }
@@ -86,21 +86,44 @@ func (m *Middlewares) Logger() {
 func (m *Middlewares) Recover() {
 	m.app.Use(recover.New(recover.Config{
 		EnableStackTrace: true,
-		StackTraceHandler: func(c *fiber.Ctx, e interface{}) {
-			m.log.Error().Str("path", c.Path()).Err(e.(error)).Msg("received unexpected panic error")
+		StackTraceHandler: func(ctx *fiber.Ctx, e interface{}) {
+			m.log.Error().Str("path", ctx.Path()).Err(e.(error)).Msg("received unexpected panic error")
 		},
 	}))
 }
 
-func (m *Middlewares) Auth() {
-	m.app.Use(func(c *fiber.Ctx) error {
-		sessionId := c.Cookies(controller.AUTH_COOKIE, ``)
-		apiKey := c.Get("X-API-KEY", ``)
 
-		// TODO
-		if len(sessionId) == 0 && len(apiKey) == 0 {
-			return c.Next()
+// Optional Middlewares
+
+const (
+	errMsgUnauthorized	= `you are unauthorized to process this operation`
+	errMsgInvalidKey		= `invalid session key`
+)
+
+func (m *Middlewares) OPT_Auth(ctx *fiber.Ctx) error {
+	sessionId := ctx.Cookies(configs.AUTH_COOKIE, ``)
+	apiKey := ctx.Get("X-API-KEY", ``)
+
+	var KEY string = sessionId
+
+	if sessionId == `` {
+		KEY = apiKey
+		if apiKey == `` {
+			response := helper.NewHTTPResponse(fiber.StatusUnauthorized, errMsgUnauthorized)
+			return ctx.Status(fiber.StatusUnauthorized).JSON(response)
 		}
-		return c.Next()
-	})
+	}
+
+	session := users.NewSessionMutator(m.rd)
+	err := session.GetSession(users.SESSION_PREFIX + KEY)
+	
+	if err != nil {
+		m.log.Error().Str("error", err.Error()).Msg("cannot get session data for " + KEY)
+
+		ctx.ClearCookie(configs.AUTH_COOKIE)
+		response := helper.NewHTTPResponse(fiber.StatusUnauthorized, errMsgInvalidKey)
+		return ctx.Status(fiber.StatusUnauthorized).JSON(response)
+	}
+
+	return ctx.Next()
 }

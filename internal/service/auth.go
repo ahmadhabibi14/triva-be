@@ -22,14 +22,6 @@ func NewAuthService(db *sqlx.DB, rd *redis.Client) *AuthService {
 	}
 }
 
-func (as *AuthService) setSession(userId, username string) (string, error) {
-	session := users.NewSession(userId, username, true)
-
-	sessionKey := helper.RandString(35)
-	as.rd.Set(users.SESSION_PREFIX + sessionKey, session, users.SESSION_EXPIRED)
-	return sessionKey, nil
-}
-
 func (as *AuthService) Login(username, password string) (sessionKey string, err error) {
 	user := users.NewUserMutator(as.db)
 	user.Username = username
@@ -43,7 +35,11 @@ func (as *AuthService) Login(username, password string) (sessionKey string, err 
 		return
 	}
 
-	sessionKey, err = as.setSession(user.Id, username)
+	sessionKey = helper.RandString(35)
+
+	session := users.NewSessionMutator(as.rd)
+	err = session.SetSession(sessionKey, user.Id, user.Username)
+
 	return
 }
 

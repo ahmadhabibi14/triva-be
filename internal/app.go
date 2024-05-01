@@ -51,7 +51,7 @@ func (a *App) setupHTTP() {
 
 	quizController := controller.NewQuizController(a.quizService)
 	app.Route(quizController.QuizPrefix, func(app fiber.Router) {
-		app.Get(controller.GetQuizzesAction, quizController.GetQuizzes)
+		app.Get(controller.GetQuizzesAction, middleware.OPT_Auth, quizController.GetQuizzes)
 	})
 
 	wsController := controller.NewWebsocketController(a.netService)

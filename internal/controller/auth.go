@@ -3,14 +3,11 @@ package controller
 import (
 	"os"
 	"time"
+	"triva/configs"
 	"triva/helper"
 	"triva/internal/service"
 
 	"github.com/gofiber/fiber/v2"
-)
-
-const (
-	AUTH_COOKIE = `session_id`
 )
 
 type AuthController struct {
@@ -112,7 +109,7 @@ func (ac *AuthController) setCookie(ctx *fiber.Ctx, sessionId string) {
 	expiration := time.Now().AddDate(0, 2, 0)
 
 	ctx.Cookie(&fiber.Cookie{
-		Name:     AUTH_COOKIE,
+		Name:     configs.AUTH_COOKIE,
 		Value:    sessionId,
 		Expires:  expiration,
 		SameSite: `Lax`,

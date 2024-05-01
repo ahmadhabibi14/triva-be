@@ -35,7 +35,7 @@ func TestAuth(t *testing.T) {
 	// MISC config
 	timeOut := 10 * time.Second
 
-	t.Run(`testAuthLogin`, func(t *testing.T) {
+	t.Run(`authLogin`, func(t *testing.T) {
 		payload := controller.LoginIn{
 			Username: "habibi",
 			Password: "habibi12345678",
