@@ -15,9 +15,9 @@ func NewLogger() *zerolog.Logger {
 	}
 
 	var logOutput io.Writer
-	
+
 	if os.Getenv(`WEB_ENV`) == `prod` {
-		file, _ := os.OpenFile(`logs/application.log`, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+		file, _ := os.OpenFile(PATH_APPLICATION_LOG, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 		logOutput = file
 	} else {
 		var output io.Writer = zerolog.ConsoleWriter{

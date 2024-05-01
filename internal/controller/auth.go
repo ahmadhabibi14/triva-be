@@ -32,6 +32,11 @@ type (
 	}
 )
 
+const (
+	LoginAction = `/api/auth/login`
+	LoginOkMsg  = `login successful !`
+)
+
 func (ac *AuthController) Login(ctx *fiber.Ctx) error {
 	in, err := helper.ReadJSON[LoginIn](ctx, ctx.Body())
 	if err != nil {
@@ -47,7 +52,7 @@ func (ac *AuthController) Login(ctx *fiber.Ctx) error {
 
 	ac.setCookie(ctx, sessionKey)
 
-	out := LoginOut{Session: sessionKey, Message: `login successful !`}
+	out := LoginOut{Session: sessionKey, Message: LoginOkMsg}
 	response := helper.NewHTTPResponse(fiber.StatusCreated, ``, out)
 	return ctx.Status(fiber.StatusOK).JSON(response)
 }
@@ -62,6 +67,11 @@ type (
 	RegisterOut struct {
 		Message string `json:"message" form:"message"`
 	}
+)
+
+const (
+	RegisterAction = `/api/auth/register`
+	RegisterOkMsg  = `user created !`
 )
 
 func (ac *AuthController) Register(ctx *fiber.Ctx) error {
@@ -80,7 +90,7 @@ func (ac *AuthController) Register(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(response)
 	}
 
-	out := RegisterOut{Message: `user created`}
+	out := RegisterOut{Message: RegisterOkMsg}
 	response := helper.NewHTTPResponse(fiber.StatusCreated, ``, out)
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }

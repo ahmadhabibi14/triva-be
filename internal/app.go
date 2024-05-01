@@ -12,20 +12,19 @@ import (
 	"github.com/go-redis/redis"
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog"
 )
 
-type App struct{
+type App struct {
 	httpServer *fiber.App
-	db *sqlx.DB
-	rd *redis.Client
-	log *zerolog.Logger
+	db         *sqlx.DB
+	rd         *redis.Client
+	log        *zerolog.Logger
 
 	authService *service.AuthService
 	quizService *service.QuizService
-	netService *service.NetService
+	netService  *service.NetService
 }
 
 func (a *App) Init() {
@@ -36,15 +35,13 @@ func (a *App) Init() {
 	a.setupServices()
 	a.setupHTTP()
 
-	log.Fatal(a.httpServer.Listen(":"+os.Getenv("WEB_PORT")))
+	log.Fatal(a.httpServer.Listen(":" + os.Getenv("WEB_PORT")))
 }
 
 func (a *App) setupHTTP() {
 	app := web.NewWebserver()
-	middleware := web.NewMiddlewares(app)
+	middleware := web.NewMiddlewares(app, a.log)
 	middleware.Init()
-
-	app.Use(recover.New())
 
 	authController := controller.NewAuthController(a.authService)
 	app.Post("/api/auth/login", authController.Login)
@@ -68,8 +65,8 @@ func (a *App) setupServices() {
 func (a *App) setupDB() {
 	db, err := configs.ConnectPostgresSQL()
 	if err != nil {
-    a.log.Panic().Str("error", err.Error()).Msg("failed to connect to database")
-  }
+		a.log.Panic().Str("error", err.Error()).Msg("failed to connect to database")
+	}
 	a.db = db
 }
 
@@ -80,12 +77,12 @@ func (a *App) setupRedis() {
 	if err != nil {
 		a.log.Panic().Str("error", err.Error()).Msg("failed to connect redis")
 	}
-	
+
 	a.rd = rd
 }
 
 func (a *App) setupEnv() {
-  configs.LoadEnv()
+	configs.LoadEnv()
 }
 
 func (a *App) setupLogger() {
