@@ -5,8 +5,8 @@
 2. [TypeScript](https://www.typescriptlang.org/)
 3. [TailwindCSS](https://tailwindcss.com/)
 4. [Golang](https://go.dev)
-5. [Fiber]()
-6. [PostgreSQL]()
+5. [Fiber](https://gofiber.io/)
+6. [PostgreSQL](https://www.postgresql.org/)
 7. [Redis](https://redis.io/)
 
 ### Start docker service
