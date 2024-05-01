@@ -1,4 +1,5 @@
 setup:
+	go install github.com/cosmtrek/air@latest
 	go install -tags "postgres,mysql" github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
 migrate:
