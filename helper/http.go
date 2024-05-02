@@ -8,10 +8,10 @@ import (
 )
 
 type HTTPResponse struct {
-	Code   int         `json:"code"`
-	Status string      `json:"status"`
-	Errors string      `json:"errors"`
-	Data   interface{} `json:"data"`
+	Code   int		`json:"code"`
+	Status string	`json:"status"`
+	Errors string	`json:"errors"`
+	Data   any		`json:"data"`
 }
 
 func NewHTTPResponse(code int, errors string, data ...any) HTTPResponse {

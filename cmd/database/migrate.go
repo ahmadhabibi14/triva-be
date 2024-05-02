@@ -6,6 +6,8 @@ const (
 	migrationsDir = `file://database/migration`
 )
 
+// TODO
+
 func main() {
 	fmt.Println(migrationsDir)
 }

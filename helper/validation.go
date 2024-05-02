@@ -14,7 +14,7 @@ func VerifyPassword(password, hashedPassword string) error {
 	)
 }
 
-func ValidateStruct(s interface{}) error {
+func ValidateStruct(s any) error {
 	validate := validator.New()
 	err := validate.Struct(s)
 	errMsgs := make([]string, 0)
