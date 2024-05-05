@@ -14,7 +14,7 @@ type HTTPResponse struct {
 	Data   any		`json:"data"`
 }
 
-func NewHTTPResponse(code int, errors string, data ...any) HTTPResponse {
+func NewHTTPResponse(code int, errors string, data any) HTTPResponse {
 	return HTTPResponse{
 		Code:   code,
 		Status: http.StatusText(code),

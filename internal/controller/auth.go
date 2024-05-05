@@ -41,13 +41,13 @@ const (
 func (ac *AuthController) Login(ctx *fiber.Ctx) error {
 	in, err := helper.ReadJSON[LoginIn](ctx, ctx.Body())
 	if err != nil {
-		response := helper.NewHTTPResponse(fiber.StatusBadRequest, err.Error())
+		response := helper.NewHTTPResponse(fiber.StatusBadRequest, err.Error(), nil)
 		return ctx.Status(fiber.StatusBadRequest).JSON(response)
 	}
 
 	sessionKey, err := ac.authService.Login(in.Username, in.Password)
 	if err != nil {
-		response := helper.NewHTTPResponse(fiber.StatusBadRequest, err.Error())
+		response := helper.NewHTTPResponse(fiber.StatusBadRequest, err.Error(), nil)
 		return ctx.Status(fiber.StatusBadRequest).JSON(response)
 	}
 
@@ -78,7 +78,7 @@ const (
 func (ac *AuthController) Register(ctx *fiber.Ctx) error {
 	in, err := helper.ReadJSON[RegisterIn](ctx, ctx.Body())
 	if err != nil {
-		response := helper.NewHTTPResponse(fiber.StatusBadRequest, err.Error())
+		response := helper.NewHTTPResponse(fiber.StatusBadRequest, err.Error(), nil)
 		return ctx.Status(fiber.StatusBadRequest).JSON(response)
 	}
 
@@ -87,7 +87,7 @@ func (ac *AuthController) Register(ctx *fiber.Ctx) error {
 	)
 
 	if err != nil {
-		response := helper.NewHTTPResponse(fiber.StatusBadRequest, err.Error())
+		response := helper.NewHTTPResponse(fiber.StatusBadRequest, err.Error(), nil)
 		return ctx.Status(fiber.StatusBadRequest).JSON(response)
 	}
 
@@ -114,6 +114,6 @@ func (ac *AuthController) setCookie(ctx *fiber.Ctx, sessionId string) {
 		Expires:  expiration,
 		SameSite: `Lax`,
 		Secure:   os.Getenv(`WEB_ENV`) == `prod`,
-		HTTPOnly: false,
+		HTTPOnly: true,
 	})
 }

@@ -108,20 +108,20 @@ func (m *Middlewares) OPT_Auth(ctx *fiber.Ctx) error {
 
 	if sessionId == `` {
 		KEY = apiKey
-		if apiKey == `` {
-			response := helper.NewHTTPResponse(fiber.StatusUnauthorized, errMsgUnauthorized)
-			return ctx.Status(fiber.StatusUnauthorized).JSON(response)
-		}
+	}
+	
+	if KEY == `` {
+		response := helper.NewHTTPResponse(fiber.StatusUnauthorized, errMsgUnauthorized, nil)
+		return ctx.Status(fiber.StatusUnauthorized).JSON(response)
 	}
 
 	session := users.NewSessionMutator(m.rd)
-	err := session.GetSession(users.SESSION_PREFIX + KEY)
 	
-	if err != nil {
+	if err := session.GetSession(KEY); err != nil {
 		m.log.Error().Str("error", err.Error()).Msg("cannot get session data for " + KEY)
 
 		ctx.ClearCookie(configs.AUTH_COOKIE)
-		response := helper.NewHTTPResponse(fiber.StatusUnauthorized, errMsgInvalidKey)
+		response := helper.NewHTTPResponse(fiber.StatusUnauthorized, errMsgInvalidKey, nil)
 		return ctx.Status(fiber.StatusUnauthorized).JSON(response)
 	}
 
