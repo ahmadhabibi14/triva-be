@@ -38,24 +38,24 @@ const (
 	LoginOkMsg  = `login successful !`
 )
 
-func (ac *AuthController) Login(ctx *fiber.Ctx) error {
-	in, err := helper.ReadJSON[LoginIn](ctx, ctx.Body())
+func (ac *AuthController) Login(c *fiber.Ctx) error {
+	in, err := helper.ReadJSON[LoginIn](c, c.Body())
 	if err != nil {
 		response := helper.NewHTTPResponse(fiber.StatusBadRequest, err.Error(), nil)
-		return ctx.Status(fiber.StatusBadRequest).JSON(response)
+		return c.Status(fiber.StatusBadRequest).JSON(response)
 	}
 
 	sessionKey, err := ac.authService.Login(in.Username, in.Password)
 	if err != nil {
 		response := helper.NewHTTPResponse(fiber.StatusBadRequest, err.Error(), nil)
-		return ctx.Status(fiber.StatusBadRequest).JSON(response)
+		return c.Status(fiber.StatusBadRequest).JSON(response)
 	}
 
-	ac.setCookie(ctx, sessionKey)
+	ac.setCookie(c, sessionKey)
 
 	out := LoginOut{Session: sessionKey, Message: LoginOkMsg}
 	response := helper.NewHTTPResponse(fiber.StatusCreated, ``, out)
-	return ctx.Status(fiber.StatusOK).JSON(response)
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
 type (
@@ -75,11 +75,11 @@ const (
 	RegisterOkMsg  = `user created !`
 )
 
-func (ac *AuthController) Register(ctx *fiber.Ctx) error {
-	in, err := helper.ReadJSON[RegisterIn](ctx, ctx.Body())
+func (ac *AuthController) Register(c *fiber.Ctx) error {
+	in, err := helper.ReadJSON[RegisterIn](c, c.Body())
 	if err != nil {
 		response := helper.NewHTTPResponse(fiber.StatusBadRequest, err.Error(), nil)
-		return ctx.Status(fiber.StatusBadRequest).JSON(response)
+		return c.Status(fiber.StatusBadRequest).JSON(response)
 	}
 
 	err = ac.authService.Register(
@@ -88,27 +88,27 @@ func (ac *AuthController) Register(ctx *fiber.Ctx) error {
 
 	if err != nil {
 		response := helper.NewHTTPResponse(fiber.StatusBadRequest, err.Error(), nil)
-		return ctx.Status(fiber.StatusBadRequest).JSON(response)
+		return c.Status(fiber.StatusBadRequest).JSON(response)
 	}
 
 	out := RegisterOut{Message: RegisterOkMsg}
 	response := helper.NewHTTPResponse(fiber.StatusCreated, ``, out)
-	return ctx.Status(fiber.StatusCreated).JSON(response)
+	return c.Status(fiber.StatusCreated).JSON(response)
 }
 
-func (ac *AuthController) ResetPassword(ctx *fiber.Ctx) error {
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{`ok`: true})
+func (ac *AuthController) ResetPassword(c *fiber.Ctx) error {
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{`ok`: true})
 }
 
-func (ac *AuthController) ForgotPassword(ctx *fiber.Ctx) error {
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{`ok`: true})
+func (ac *AuthController) ForgotPassword(c *fiber.Ctx) error {
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{`ok`: true})
 }
 
-func (ac *AuthController) setCookie(ctx *fiber.Ctx, sessionId string) {
+func (ac *AuthController) setCookie(c *fiber.Ctx, sessionId string) {
 	// 2 months expired
 	expiration := time.Now().AddDate(0, 2, 0)
 
-	ctx.Cookie(&fiber.Cookie{
+	c.Cookie(&fiber.Cookie{
 		Name:     configs.AUTH_COOKIE,
 		Value:    sessionId,
 		Expires:  expiration,

@@ -23,13 +23,13 @@ const (
 	GetQuizzesAction = `/quizzes`
 )
 
-func (qc *QuizController) GetQuizzes(ctx *fiber.Ctx) error {
+func (qc *QuizController) GetQuizzes(c *fiber.Ctx) error {
 	quizzes, err := qc.quizService.GetQuizzes()
 	if err != nil {
 		response := helper.NewHTTPResponse(fiber.StatusBadRequest, err.Error(), ``)
-		return ctx.Status(fiber.StatusBadRequest).JSON(response)
+		return c.Status(fiber.StatusBadRequest).JSON(response)
 	}
 
 	response := helper.NewHTTPResponse(fiber.StatusOK, ``, quizzes)
-	return ctx.Status(fiber.StatusOK).JSON(response)
+	return c.Status(fiber.StatusOK).JSON(response)
 }

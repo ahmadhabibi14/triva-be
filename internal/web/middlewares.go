@@ -41,14 +41,14 @@ func (m *Middlewares) RateLimiter() {
 	m.app.Use(limiter.New(limiter.Config{
 		Max:        300,
 		Expiration: 2 * time.Minute,
-		KeyGenerator: func(ctx *fiber.Ctx) string {
-			return ctx.IP()
+		KeyGenerator: func(c *fiber.Ctx) string {
+			return c.IP()
 		},
-		LimitReached: func(ctx *fiber.Ctx) error {
-			var errMessage string = "You have exceeded your rate limit. Please try again a few minutes later."
+		LimitReached: func(c *fiber.Ctx) error {
+			var errMessage string = "you have exceeded your rate limit, please try again a few moments later"
 
 			response := helper.NewHTTPResponse(fiber.StatusTooManyRequests, errMessage, "")
-			return ctx.Status(fiber.StatusTooManyRequests).JSON(response)
+			return c.Status(fiber.StatusTooManyRequests).JSON(response)
 		},
 	}))
 }
@@ -86,12 +86,11 @@ func (m *Middlewares) Logger() {
 func (m *Middlewares) Recover() {
 	m.app.Use(recover.New(recover.Config{
 		EnableStackTrace: true,
-		StackTraceHandler: func(ctx *fiber.Ctx, e interface{}) {
-			m.log.Error().Str("path", ctx.Path()).Err(e.(error)).Msg("received unexpected panic error")
+		StackTraceHandler: func(c *fiber.Ctx, e interface{}) {
+			m.log.Error().Str("path", c.Path()).Err(e.(error)).Msg("received unexpected panic error")
 		},
 	}))
 }
-
 
 // Optional Middlewares
 
@@ -100,19 +99,16 @@ const (
 	errMsgInvalidKey		= `invalid session key`
 )
 
-func (m *Middlewares) OPT_Auth(ctx *fiber.Ctx) error {
-	sessionId := ctx.Cookies(configs.AUTH_COOKIE, ``)
-	apiKey := ctx.Get("X-API-KEY", ``)
+func (m *Middlewares) OPT_Auth(c *fiber.Ctx) error {
+	sessionId := c.Cookies(configs.AUTH_COOKIE, ``)
+	apiKey := c.Get("X-API-KEY", ``)
 
 	var KEY string = sessionId
-
-	if sessionId == `` {
-		KEY = apiKey
-	}
+	if sessionId == `` { KEY = apiKey }
 	
 	if KEY == `` {
 		response := helper.NewHTTPResponse(fiber.StatusUnauthorized, errMsgUnauthorized, nil)
-		return ctx.Status(fiber.StatusUnauthorized).JSON(response)
+		return c.Status(fiber.StatusUnauthorized).JSON(response)
 	}
 
 	session := users.NewSessionMutator(m.rd)
@@ -120,10 +116,10 @@ func (m *Middlewares) OPT_Auth(ctx *fiber.Ctx) error {
 	if err := session.GetSession(KEY); err != nil {
 		m.log.Error().Str("error", err.Error()).Msg("cannot get session data for " + KEY)
 
-		ctx.ClearCookie(configs.AUTH_COOKIE)
+		c.ClearCookie(configs.AUTH_COOKIE)
 		response := helper.NewHTTPResponse(fiber.StatusUnauthorized, errMsgInvalidKey, nil)
-		return ctx.Status(fiber.StatusUnauthorized).JSON(response)
+		return c.Status(fiber.StatusUnauthorized).JSON(response)
 	}
 
-	return ctx.Next()
+	return c.Next()
 }
