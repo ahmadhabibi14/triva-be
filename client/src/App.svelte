@@ -4,8 +4,6 @@
   import HostView from './views/host/HostView.svelte';
   import Router from 'svelte-spa-router';
 
-  console.log(`WebSocket host:`, import.meta.env.VITE_WEBSOCKET_HOST);
-
   let routes = {
     '/': GuestView,
     '/player': PlayerView,
