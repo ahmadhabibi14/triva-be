@@ -1,15 +1,58 @@
 <script lang="ts">
-  import { ModeHostState, ModeHostRegister } from '../../states/mode';
+  import { ModeHostState, ModeHostPassed, ModeHostRegister } from '../../states/mode';
   import InputBox from '../../lib/InputBox.svelte';
   import { link } from 'svelte-spa-router';
   import { Icon } from 'svelte-icons-pack';
   import { TrOutlineHome } from 'svelte-icons-pack/tr';
+  import axios from 'axios';
+  import toast, { Toaster } from 'svelte-french-toast';
+  import { type HTTPResponse } from '../../types/http';
 
-  let email: string = '';
+  let username: string = '';
   let password: string = '';
 
   let isSubmitted: boolean = false;
+
+  type loginIn = {
+    username: string;
+    password: string;
+	}
+  
+  type loginOut = {
+    session: string;
+    message: string;
+  }
+
+  async function Login() {
+    isSubmitted = true;
+
+    const payload: loginIn = { username, password }
+    const url: string = import.meta.env.VITE_WEB_HOST+'/api/auth/login';
+
+    await axios.post(url, payload,
+      { headers: { 'Content-Type': 'application/json' } }
+    ).then((resp) => {
+      isSubmitted = false;
+
+      const body: HTTPResponse = resp.data as HTTPResponse;
+      const out: loginOut = body.data as loginOut;
+
+      toast.success(out.message);
+      localStorage.setItem('session_id', out.session);
+
+      setTimeout(() => ModeHostState.set(ModeHostPassed), 1200);
+    }).catch((err) => {
+      isSubmitted = false;
+
+      const body: HTTPResponse = err.response.data as HTTPResponse;
+
+      toast.error(body.errors);
+      console.log(err);
+    });
+  }
 </script>
+
+<Toaster />
 
 <div class="w-[400px] bg-zinc-900 p-5 rounded-xl mx-auto flex flex-col gap-7">
   <header class="flex flex-row justify-between items-center">
@@ -20,11 +63,11 @@
   </header>
   <form class="flex flex-col gap-4">
     <InputBox
-      id="email"
-      type="email"
-      bind:value={email}
-      placeholder="john@example.com"
-      label="Email"
+      id="username"
+      type="text"
+      bind:value={username}
+      placeholder="johndoe123"
+      label="Username"
     />
     <InputBox
       id="password"
@@ -44,7 +87,7 @@
       disabled={isSubmitted}
       class="focus:outline-none bg-violet-500 disabled:cursor-not-allowed py-2.5 rounded-lg font-semibold
         text-white hover:bg-violet-400 disabled:bg-zinc-800"
-      on:click|preventDefault={() => isSubmitted = !isSubmitted}
+      on:click|preventDefault={Login}
     >
       {#if !isSubmitted}
         Login

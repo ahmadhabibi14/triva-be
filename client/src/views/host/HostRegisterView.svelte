@@ -28,21 +28,27 @@
 
   async function Register() {
     isSubmitted = true;
-    const payload: registerIn = { email, username, full_name, password  }
+
+    const payload: registerIn = { email, username, full_name, password }
     const url: string = import.meta.env.VITE_WEB_HOST+'/api/auth/register';
+
     await axios.post(url, payload,
       { headers: { 'Content-Type': 'application/json' } }
     ).then((resp) => {
-      const body: HTTPResponse = resp.data as HTTPResponse;
-      body.data as registerOut;
-      toast.success(body.data.message);
       isSubmitted = false;
+
+      const body: HTTPResponse = resp.data as HTTPResponse;
+      const out: registerOut = body.data as registerOut;
+
+      toast.success(out.message);
       setTimeout(() => ModeHostState.set(ModeHostLogin), 1200);
     }).catch((err) => {
+      isSubmitted = false;
+
       const body: HTTPResponse = err.response.data as HTTPResponse;
+
       toast.error(body.errors);
       console.log(err);
-      isSubmitted = false;
     });
   }
 </script>
