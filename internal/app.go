@@ -4,19 +4,18 @@ import (
 	"log"
 	"os"
 	"triva/configs"
+	"triva/internal/bootstrap/database"
+	"triva/internal/bootstrap/logger"
 	"triva/internal/controller"
-	"triva/internal/database"
 	"triva/internal/service"
 	"triva/internal/web"
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
-	"github.com/rs/zerolog"
 )
 
 type App struct {
 	httpServer *fiber.App
-	log        *zerolog.Logger
 	db 				 *database.Database
 
 	authService *service.AuthService
@@ -36,7 +35,7 @@ func (a *App) Init() {
 
 func (a *App) setupHTTP() {
 	app := web.NewWebserver()
-	middleware := web.NewMiddlewares(app, a.log, a.db)
+	middleware := web.NewMiddlewares(app, a.db)
 	middleware.Init()
 
 	authController := controller.NewAuthController(a.authService)
@@ -65,16 +64,16 @@ func (a *App) setupServices() {
 func (a *App) setupDatabase() {
 	pq, err := configs.ConnectPostgresSQL()
 	if err != nil {
-		a.log.Panic().Str("error", err.Error()).Msg("failed to connect to database")
+		logger.Log.Panic().Str("error", err.Error()).Msg("failed to connect to database")
 	}
 
 	rd := configs.NewRedisClient()
 	_, err = rd.Ping().Result()
 	if err != nil {
-		a.log.Panic().Str("error", err.Error()).Msg("failed to connect redis")
+		logger.Log.Panic().Str("error", err.Error()).Msg("failed to connect redis")
 	}
 
-	db := database.NewDatabase(pq, rd, a.log)
+	db := database.NewDatabase(pq, rd)
 
 	a.db = db
 }
@@ -84,5 +83,5 @@ func (a *App) setupEnv() {
 }
 
 func (a *App) setupLogger() {
-	a.log = configs.NewLogger()
+	logger.InitLogger()
 }

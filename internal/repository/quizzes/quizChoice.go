@@ -2,7 +2,7 @@ package quizzes
 
 import (
 	"time"
-	"triva/internal/database"
+	"triva/internal/bootstrap/database"
 )
 
 const TABLE_QuizChoice string = `QuizChoice`

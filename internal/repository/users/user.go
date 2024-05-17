@@ -3,8 +3,10 @@ package users
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
-	"triva/internal/database"
+	"triva/internal/bootstrap/database"
+	"triva/internal/bootstrap/logger"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -44,7 +46,9 @@ VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING username`
 	).StructScan(u); err != nil {
 		pgErr, ok := err.(*pq.Error)
 		if ok && pgErr.Code == `23505` {
-			return errors.New(`email or username is already in use`)
+			errMsg := fmt.Errorf(`email or username is already in use`)
+			logger.Log.Err(err).Msg(errMsg.Error())
+			return errMsg
 		}
 		return err
 	}
@@ -55,6 +59,9 @@ VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING username`
 func (u *User) FindUsernamePassword() bool {
 	query := `SELECT username, password FROM ` + TABLE_User + ` WHERE username = $1`
 	err := u.Db.DB.Get(u, query, u.Username)
+	if err != nil {
+		logger.Log.Err(err).Msg(`failed to find username and password`)
+	}
 	
 	return !errors.Is(err, sql.ErrNoRows)
 }

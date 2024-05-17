@@ -4,7 +4,8 @@ import (
 	"os"
 	"testing"
 	"triva/configs"
-	"triva/internal/database"
+	"triva/internal/bootstrap/database"
+	"triva/internal/bootstrap/logger"
 
 	"github.com/rs/zerolog"
 )
@@ -16,7 +17,7 @@ var (
 
 func TestMain(m *testing.M) {
 	configs.LoadEnv()
-	LOG = configs.NewLogger()
+	logger.InitLogger()
 
 	Pg, err := configs.ConnectPostgresSQL()
 	if err != nil {
@@ -29,7 +30,7 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	DB = database.NewDatabase(Pg, Rd, LOG)
+	DB = database.NewDatabase(Pg, Rd)
 
 	os.Exit(m.Run())
 }

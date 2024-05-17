@@ -1,7 +1,7 @@
 package service
 
 import (
-	"triva/internal/database"
+	"triva/internal/bootstrap/database"
 	"triva/internal/repository/quizzes"
 )
 

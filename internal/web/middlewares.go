@@ -5,29 +5,24 @@ import (
 	"time"
 	"triva/configs"
 	"triva/helper"
-	"triva/internal/database"
+	"triva/internal/bootstrap/database"
+	"triva/internal/bootstrap/logger"
 	"triva/internal/repository/users"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
-	"github.com/gofiber/fiber/v2/middleware/logger"
+	fiberLogger "github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/rs/zerolog"
 )
 
 type Middlewares struct {
 	app *fiber.App
-	log *zerolog.Logger
 	db *database.Database
 }
 
-func NewMiddlewares(app *fiber.App, log *zerolog.Logger, db *database.Database) *Middlewares {
-	return &Middlewares{
-		app: app,
-		log: log,
-		db: db,
-	}
+func NewMiddlewares(app *fiber.App, db *database.Database) *Middlewares {
+	return &Middlewares{app, db}
 }
 
 func (m *Middlewares) Init() {
@@ -58,13 +53,13 @@ func (m *Middlewares) Cors() {
 }
 
 func (m *Middlewares) Logger() {
-	var conf logger.Config
+	var conf fiberLogger.Config
 
 	if os.Getenv("WEB_ENV") == `prod` {
 		file, _ := os.OpenFile(
 			configs.PATH_WEBACCESS_LOG, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666,
 		)
-		conf = logger.Config{
+		conf = fiberLogger.Config{
 			Format:        "{\"time\": \"${time}\", \"status\": \"${status}\", \"ip\": \"${ip}\", \"ips\": \"${ips}\", \"latency\": \"${latency}\", \"method\": \"${method}\", \"path\": \"${path}\"\n",
 			TimeFormat:    "2006-01-02T03:00:55+08:00",
 			TimeZone:      "Asia/Makassar",
@@ -72,7 +67,7 @@ func (m *Middlewares) Logger() {
 			DisableColors: true,
 		}
 	} else {
-		conf = logger.Config{
+		conf = fiberLogger.Config{
 			Format:     "${time} | ${status} | ${latency} | ${method} | ${path}\n",
 			TimeFormat: "2006/01/02 03:04 PM",
 			TimeZone:   "Asia/Makassar",
@@ -80,14 +75,14 @@ func (m *Middlewares) Logger() {
 		}
 	}
 
-	m.app.Use(logger.New(conf))
+	m.app.Use(fiberLogger.New(conf))
 }
 
 func (m *Middlewares) Recover() {
 	m.app.Use(recover.New(recover.Config{
 		EnableStackTrace: true,
 		StackTraceHandler: func(c *fiber.Ctx, e interface{}) {
-			m.log.Error().Str("path", c.Path()).Err(e.(error)).Msg("received unexpected panic error")
+			logger.Log.Error().Str("path", c.Path()).Err(e.(error)).Msg("received unexpected panic error")
 		},
 	}))
 }
@@ -114,7 +109,7 @@ func (m *Middlewares) OPT_Auth(c *fiber.Ctx) error {
 	session := users.NewSessionMutator(m.db)
 	
 	if err := session.GetSession(KEY); err != nil {
-		m.log.Error().Str("error", err.Error()).Msg("cannot get session data for " + KEY)
+		logger.Log.Error().Str("error", err.Error()).Msg("cannot get session data for " + KEY)
 
 		c.ClearCookie(configs.AUTH_COOKIE)
 		response := helper.NewHTTPResponse(fiber.StatusUnauthorized, errMsgInvalidKey, nil)

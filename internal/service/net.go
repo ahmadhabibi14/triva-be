@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"triva/internal/database"
+	"triva/internal/bootstrap/database"
 	"triva/internal/repository/quizzes"
 
 	"github.com/goccy/go-json"

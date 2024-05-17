@@ -5,7 +5,8 @@ import (
 	"strings"
 	"time"
 	"triva/helper"
-	"triva/internal/database"
+	"triva/internal/bootstrap/database"
+	"triva/internal/bootstrap/logger"
 )
 
 const TABLE_Quiz string = `Quiz` 
@@ -33,6 +34,9 @@ func (q *Quiz) GetQuizzes() (quizzes []Quiz, err error) {
 		ORDER BY name DESC`
 	
 	err = q.Db.DB.Select(&quizzes, query)
+	if err != nil {
+		logger.Log.Error().Str(`error`, err.Error()).Msg(`failed to get quizzes`)
+	}
 	
 	return
 }
@@ -41,6 +45,7 @@ func (q *Quiz) FindById(id string) error {
 	query := `SELECT * FROM ` + TABLE_Quiz + ` WHERE id = $1 LIMIT 1`
 	err := q.Db.DB.Get(q, query, strings.TrimSpace(id))
 	if err != nil {
+		logger.Log.Err(err)
 		return errors.New(`quiz not found`)
 	}
 
@@ -55,7 +60,10 @@ RETURNING id, name, user_id, created_at, updated_at`
 
 	if err := q.Db.DB.QueryRowx(query,
 		helper.RandString(35), q.Name, q.UserId, time.Now(),
-	).StructScan(q); err != nil { return err }
+	).StructScan(q); err != nil {
+		logger.Log.Err(err)
+		return err
+	}
 
 	return nil
 }
@@ -68,7 +76,10 @@ RETURNING id, name, user_id, created_at, updated_at`
 
 	if err := q.Db.DB.QueryRowx(query,
 		q.Name, time.Now(), q.Id,
-	).StructScan(q); err != nil { return err }
+	).StructScan(q); err != nil {
+		logger.Log.Err(err)
+		return err
+	}
 
 	return nil
 }

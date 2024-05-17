@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	"triva/internal/database"
+	"triva/internal/bootstrap/database"
 
 	"github.com/goccy/go-json"
 )

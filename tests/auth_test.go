@@ -20,7 +20,7 @@ func TestAuth(t *testing.T) {
 	authController := controller.NewAuthController(authService)
 
 	app := web.NewWebserver()
-	middleware := web.NewMiddlewares(app, LOG, DB)
+	middleware := web.NewMiddlewares(app, DB)
 	middleware.Init()
 
 	var (

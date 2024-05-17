@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	"triva/helper"
-	"triva/internal/database"
+	"triva/internal/bootstrap/database"
 	"triva/internal/repository/users"
 
 	"golang.org/x/crypto/bcrypt"

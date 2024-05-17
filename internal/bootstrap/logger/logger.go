@@ -1,14 +1,17 @@
-package configs
+package logger
 
 import (
 	"io"
 	"os"
 	"strconv"
+	"triva/configs"
 
 	"github.com/rs/zerolog"
 )
 
-func NewLogger() *zerolog.Logger {
+var Log zerolog.Logger
+
+func InitLogger() {
 	logLevel, err := strconv.Atoi(os.Getenv(`LOG_LEVEL`))
 	if err != nil {
 		logLevel = int(zerolog.InfoLevel)
@@ -17,7 +20,7 @@ func NewLogger() *zerolog.Logger {
 	var logOutput io.Writer
 
 	if os.Getenv(`WEB_ENV`) == `prod` {
-		file, _ := os.OpenFile(PATH_APPLICATION_LOG, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+		file, _ := os.OpenFile(configs.PATH_APPLICATION_LOG, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 		logOutput = file
 	} else {
 		var output io.Writer = zerolog.ConsoleWriter{
@@ -40,5 +43,5 @@ func NewLogger() *zerolog.Logger {
 		Caller().
 		Logger()
 
-	return &l
+	Log = l
 }
