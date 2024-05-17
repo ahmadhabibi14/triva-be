@@ -54,7 +54,7 @@ func (ac *AuthController) Login(c *fiber.Ctx) error {
 	ac.setCookie(c, sessionKey)
 
 	out := LoginOut{Session: sessionKey, Message: LoginOkMsg}
-	response := helper.NewHTTPResponse(fiber.StatusCreated, ``, out)
+	response := helper.NewHTTPResponse(fiber.StatusOK, ``, out)
 	return c.Status(fiber.StatusOK).JSON(response)
 }
 

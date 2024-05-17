@@ -16,11 +16,11 @@ import (
 )
 
 func TestAuth(t *testing.T) {
-	authService := service.NewAuthService(PG_DB, RD_DB)
+	authService := service.NewAuthService(DB)
 	authController := controller.NewAuthController(authService)
 
 	app := web.NewWebserver()
-	middleware := web.NewMiddlewares(app, LOG, RD_DB)
+	middleware := web.NewMiddlewares(app, LOG, DB)
 	middleware.Init()
 
 	var (

@@ -5,9 +5,9 @@ import (
 	"time"
 	"triva/configs"
 	"triva/helper"
+	"triva/internal/database"
 	"triva/internal/repository/users"
 
-	"github.com/go-redis/redis"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
@@ -19,14 +19,14 @@ import (
 type Middlewares struct {
 	app *fiber.App
 	log *zerolog.Logger
-	rd  *redis.Client
+	db *database.Database
 }
 
-func NewMiddlewares(app *fiber.App, log *zerolog.Logger, rd *redis.Client) *Middlewares {
+func NewMiddlewares(app *fiber.App, log *zerolog.Logger, db *database.Database) *Middlewares {
 	return &Middlewares{
 		app: app,
 		log: log,
-		rd:  rd,
+		db: db,
 	}
 }
 
@@ -111,7 +111,7 @@ func (m *Middlewares) OPT_Auth(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(response)
 	}
 
-	session := users.NewSessionMutator(m.rd)
+	session := users.NewSessionMutator(m.db)
 	
 	if err := session.GetSession(KEY); err != nil {
 		m.log.Error().Str("error", err.Error()).Msg("cannot get session data for " + KEY)

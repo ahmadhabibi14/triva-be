@@ -14,14 +14,14 @@ const (
 )
 
 func TestSetSession(t *testing.T) {
-	session := users.NewSessionMutator(RD_DB)
+	session := users.NewSessionMutator(DB)
 	err := session.SetSession(sessionKey, userId, username)
 
 	assert.Nil(t, err, `failed to set session`)
 }
 
 func TestGetSession(t *testing.T) {
-	session := users.NewSessionMutator(RD_DB)
+	session := users.NewSessionMutator(DB)
 	err := session.GetSession(sessionKey)
 
 	assert.Nil(t, err, `session not found`)

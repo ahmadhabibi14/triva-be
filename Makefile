@@ -3,16 +3,16 @@ setup:
 	go install -tags "postgres,mysql" github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
 migrate:
-	migrate create -ext sql -dir database/migration $(state)
+	migrate create -ext sql -dir databases/migration $(state)
 
 migrate-up:
-	migrate -path database/migration -database "postgres://habi:habi123@localhost:5432/triva?sslmode=disable" -verbose up
+	migrate -path databases/migration -database "postgres://habi:habi123@localhost:5432/triva?sslmode=disable" -verbose up
 
 migrate-down:
-	migrate -path database/migration -database "postgres://habi:habi123@localhost:5432/triva?sslmode=disable" -verbose down
+	migrate -path databases/migration -database "postgres://habi:habi123@localhost:5432/triva?sslmode=disable" -verbose down
 
 migrate-fix:
-	migrate -path database/migration -database "postgres://habi:habi123@localhost:5432/triva?sslmode=disable" force $(version)
+	migrate -path databases/migration -database "postgres://habi:habi123@localhost:5432/triva?sslmode=disable" force $(version)
 
 migrate-go:
 	go run cmd/database/migrate.go

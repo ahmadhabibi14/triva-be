@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"time"
+	"triva/internal/database"
 
-	"github.com/go-redis/redis"
 	"github.com/goccy/go-json"
 )
 
@@ -15,12 +15,14 @@ const (
 )
 
 type Session struct {
-	RD						*redis.Client `json:"-"` 
+	Db						*database.Database `json:"-"` 
 	UserID        string				`json:"user_id"`
 	Username      string				`json:"username"`
 }
 
-func NewSessionMutator(rd *redis.Client) *Session { return &Session{RD: rd} }
+func NewSessionMutator(Db *database.Database) *Session {
+	return &Session{Db: Db}
+}
 
 func (s *Session) SetSession(sessionKey, userId, username string) error {
 	s.UserID = userId
@@ -31,7 +33,7 @@ func (s *Session) SetSession(sessionKey, userId, username string) error {
 		return errors.New(`failed to marshal session data`)
 	}
 
-	err = s.RD.Set(SESSION_PREFIX + sessionKey, sessionJSON, SESSION_EXPIRED).Err()
+	err = s.Db.RD.Set(SESSION_PREFIX + sessionKey, sessionJSON, SESSION_EXPIRED).Err()
 	if err != nil {
 		return fmt.Errorf(`failed to set session: %v`, err)
 	}
@@ -40,7 +42,7 @@ func (s *Session) SetSession(sessionKey, userId, username string) error {
 }
 
 func (s *Session) GetSession(sessionKey string) error {
-	sessionData, err := s.RD.Get(SESSION_PREFIX + sessionKey).Result()
+	sessionData, err := s.Db.RD.Get(SESSION_PREFIX + sessionKey).Result()
 	if err != nil {
 		return errors.New(`session not found`)
 	}

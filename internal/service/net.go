@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"triva/internal/database"
 	"triva/internal/repository/quizzes"
 
 	"github.com/goccy/go-json"
 	"github.com/gofiber/contrib/websocket"
-	"github.com/jmoiron/sqlx"
 )
 
 const (
@@ -17,13 +17,13 @@ const (
 )
 
 type NetService struct {
-	db *sqlx.DB
+	db *database.Database
 	quizService *QuizService
 
 	games []*GameService
 }
 
-func NewNetService(qs *QuizService, db *sqlx.DB) *NetService {
+func NewNetService(qs *QuizService, db *database.Database) *NetService {
 	return &NetService{
 		quizService: qs,
 		db: db,

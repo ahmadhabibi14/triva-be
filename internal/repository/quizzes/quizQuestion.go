@@ -2,14 +2,13 @@ package quizzes
 
 import (
 	"time"
-
-	"github.com/jmoiron/sqlx"
+	"triva/internal/database"
 )
 
 const TABLE_QuizQuestion string = `QuizQuestion`
 
 type QuizQuestion struct {
-	DB *sqlx.DB `db:"-" json:"-"`
+	Db *database.Database `db:"-" json:"-"`
 
 	Id string `db:"id" json:"id"`
 	Name string `db:"name" json:"name"`
@@ -20,4 +19,6 @@ type QuizQuestion struct {
 	Choices []QuizChoice `db:"-" json:"choices"`
 }
 
-func NewQuizQuestionMutator(db *sqlx.DB) *QuizQuestion { return &QuizQuestion{DB: db} }
+func NewQuizQuestionMutator(Db *database.Database) *QuizQuestion {
+	return &QuizQuestion{Db: Db}
+}

@@ -5,14 +5,13 @@ import (
 	"strings"
 	"time"
 	"triva/helper"
-
-	"github.com/jmoiron/sqlx"
+	"triva/internal/database"
 )
 
 const TABLE_Quiz string = `Quiz` 
 
 type Quiz struct {
-	DB *sqlx.DB `db:"-" json:"-"`
+	Db *database.Database `db:"-" json:"-"`
 
 	Id string `db:"id" json:"id"`
 	Name string `db:"name" json:"name"`
@@ -23,7 +22,9 @@ type Quiz struct {
 	Questions []QuizQuestion `db:"-" json:"questions"`
 }
 
-func NewQuizMutator(db *sqlx.DB) *Quiz { return &Quiz{DB: db} }
+func NewQuizMutator(Db *database.Database) *Quiz {
+	return &Quiz{Db: Db}
+}
 
 func (q *Quiz) GetQuizzes() (quizzes []Quiz, err error) {
 	query := `SELECT
@@ -31,14 +32,14 @@ func (q *Quiz) GetQuizzes() (quizzes []Quiz, err error) {
 		FROM ` + TABLE_Quiz + ` WHERE user_id = ` + q.UserId + `
 		ORDER BY name DESC`
 	
-	err = q.DB.Select(&quizzes, query)
+	err = q.Db.DB.Select(&quizzes, query)
 	
 	return
 }
 
 func (q *Quiz) FindById(id string) error {
 	query := `SELECT * FROM ` + TABLE_Quiz + ` WHERE id = $1 LIMIT 1`
-	err := q.DB.Get(q, query, strings.TrimSpace(id))
+	err := q.Db.DB.Get(q, query, strings.TrimSpace(id))
 	if err != nil {
 		return errors.New(`quiz not found`)
 	}
@@ -52,7 +53,7 @@ func (q *Quiz) Insert() error {
 ON CONFLICT (user_id) DO NOTHING
 RETURNING id, name, user_id, created_at, updated_at`
 
-	if err := q.DB.QueryRowx(query,
+	if err := q.Db.DB.QueryRowx(query,
 		helper.RandString(35), q.Name, q.UserId, time.Now(),
 	).StructScan(q); err != nil { return err }
 
@@ -65,7 +66,7 @@ SET name = $1, updated_at = $2
 WHERE id = $3
 RETURNING id, name, user_id, created_at, updated_at`
 
-	if err := q.DB.QueryRowx(query,
+	if err := q.Db.DB.QueryRowx(query,
 		q.Name, time.Now(), q.Id,
 	).StructScan(q); err != nil { return err }
 

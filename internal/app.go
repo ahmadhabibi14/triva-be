@@ -5,21 +5,19 @@ import (
 	"os"
 	"triva/configs"
 	"triva/internal/controller"
+	"triva/internal/database"
 	"triva/internal/service"
 	"triva/internal/web"
 
-	"github.com/go-redis/redis"
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
-	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog"
 )
 
 type App struct {
 	httpServer *fiber.App
-	db         *sqlx.DB
-	rd         *redis.Client
 	log        *zerolog.Logger
+	db 				 *database.Database
 
 	authService *service.AuthService
 	quizService *service.QuizService
@@ -29,8 +27,7 @@ type App struct {
 func (a *App) Init() {
 	a.setupEnv()
 	a.setupLogger()
-	a.setupDB()
-	a.setupRedis()
+	a.setupDatabase()
 	a.setupServices()
 	a.setupHTTP()
 
@@ -39,7 +36,7 @@ func (a *App) Init() {
 
 func (a *App) setupHTTP() {
 	app := web.NewWebserver()
-	middleware := web.NewMiddlewares(app, a.log, a.rd)
+	middleware := web.NewMiddlewares(app, a.log, a.db)
 	middleware.Init()
 
 	authController := controller.NewAuthController(a.authService)
@@ -60,28 +57,26 @@ func (a *App) setupHTTP() {
 }
 
 func (a *App) setupServices() {
-	a.authService = service.NewAuthService(a.db, a.rd)
-	a.quizService = service.NewQuizService(a.db, a.rd)
+	a.authService = service.NewAuthService(a.db)
+	a.quizService = service.NewQuizService(a.db)
 	a.netService = service.NewNetService(a.quizService, a.db)
 }
 
-func (a *App) setupDB() {
-	db, err := configs.ConnectPostgresSQL()
+func (a *App) setupDatabase() {
+	pq, err := configs.ConnectPostgresSQL()
 	if err != nil {
 		a.log.Panic().Str("error", err.Error()).Msg("failed to connect to database")
 	}
-	a.db = db
-}
 
-func (a *App) setupRedis() {
 	rd := configs.NewRedisClient()
-
-	_, err := rd.Ping().Result()
+	_, err = rd.Ping().Result()
 	if err != nil {
 		a.log.Panic().Str("error", err.Error()).Msg("failed to connect redis")
 	}
 
-	a.rd = rd
+	db := database.NewDatabase(pq, rd, a.log)
+
+	a.db = db
 }
 
 func (a *App) setupEnv() {

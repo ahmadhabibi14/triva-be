@@ -4,16 +4,16 @@ import (
 	"database/sql"
 	"errors"
 	"time"
+	"triva/internal/database"
 
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 )
 
 const TABLE_User = `Users`
 
 type User struct {
-	DB *sqlx.DB `db:"-" json:"-"`
+	Db *database.Database `db:"-" json:"-"`
 
 	Id string `db:"id" json:"id"`
 	Username string `db:"username" json:"username"`
@@ -29,14 +29,16 @@ type User struct {
 	DeletedAt time.Time `db:"deleted_at" json:"deleted_at"`
 }
 
-func NewUserMutator(db *sqlx.DB) *User { return &User{DB: db} }
+func NewUserMutator(Db *database.Database) *User {
+	return &User{Db: Db}
+}
 
 func (u *User) CreateUser() error {
 	query := `INSERT INTO ` + TABLE_User +` (id, username, full_name, email, password, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING username`
 	
 	uid := uuid.New().String()
-	if err := u.DB.QueryRowx(query,
+	if err := u.Db.DB.QueryRowx(query,
 		uid, u.Username, u.FullName, u.Email, u.Password,
 		time.Now(), time.Now(),
 	).StructScan(u); err != nil {
@@ -52,7 +54,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING username`
 
 func (u *User) FindUsernamePassword() bool {
 	query := `SELECT username, password FROM ` + TABLE_User + ` WHERE username = $1`
-	err := u.DB.Get(u, query, u.Username)
+	err := u.Db.DB.Get(u, query, u.Username)
 	
 	return !errors.Is(err, sql.ErrNoRows)
 }

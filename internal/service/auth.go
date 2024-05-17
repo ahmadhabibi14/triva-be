@@ -3,24 +3,22 @@ package service
 import (
 	"errors"
 	"triva/helper"
+	"triva/internal/database"
 	"triva/internal/repository/users"
 
-	"github.com/go-redis/redis"
-	"github.com/jmoiron/sqlx"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthService struct {
-	db *sqlx.DB
-	rd *redis.Client
+	Db *database.Database
 }
 
-func NewAuthService(db *sqlx.DB, rd *redis.Client) *AuthService {
-	return &AuthService{db, rd}
+func NewAuthService(Db *database.Database) *AuthService {
+	return &AuthService{Db: Db}
 }
 
 func (as *AuthService) Login(username, password string) (sessionKey string, err error) {
-	user := users.NewUserMutator(as.db)
+	user := users.NewUserMutator(as.Db)
 	user.Username = username
 	if !user.FindUsernamePassword() {
 		err = errors.New(`username not found`)
@@ -34,14 +32,14 @@ func (as *AuthService) Login(username, password string) (sessionKey string, err 
 
 	sessionKey = helper.RandString(35)
 
-	session := users.NewSessionMutator(as.rd)
+	session := users.NewSessionMutator(as.Db)
 	err = session.SetSession(sessionKey, user.Id, user.Username)
 
 	return
 }
 
 func (as *AuthService) Register(username, fullName, email, password string) error {
-	user := users.NewUserMutator(as.db)
+	user := users.NewUserMutator(as.Db)
 	user.Username = username
 	user.FullName = fullName
 	user.Email = email
