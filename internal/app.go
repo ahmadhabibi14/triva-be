@@ -5,7 +5,6 @@ import (
 	"os"
 	"triva/configs"
 	"triva/internal/controller"
-	"triva/internal/repository/quizzes"
 	"triva/internal/service"
 	"triva/internal/web"
 
@@ -54,15 +53,15 @@ func (a *App) setupHTTP() {
 		app.Get(controller.GetQuizzesAction, middleware.OPT_Auth, quizController.GetQuizzes)
 	})
 
-	wsController := controller.NewWebsocketController(a.netService)
-	app.Get("/ws", websocket.New(wsController.WS))
+	gameController := controller.NewGameController(a.netService)
+	app.Get("/game", websocket.New(gameController.Game))
 
 	a.httpServer = app
 }
 
 func (a *App) setupServices() {
 	a.authService = service.NewAuthService(a.db, a.rd)
-	a.quizService = service.NewQuizService(quizzes.NewQuizMutator(a.db))
+	a.quizService = service.NewQuizService(a.db, a.rd)
 	a.netService = service.NewNetService(a.quizService, a.db)
 }
 

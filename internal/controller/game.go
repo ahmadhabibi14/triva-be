@@ -7,15 +7,15 @@ import (
 	"github.com/gofiber/contrib/websocket"
 )
 
-type WebsocketController struct {
+type GameController struct {
 	netService *service.NetService
 }
 
-func NewWebsocketController(ns *service.NetService) *WebsocketController {
-	return &WebsocketController{netService: ns}
+func NewGameController(ns *service.NetService) *GameController {
+	return &GameController{netService: ns}
 }
 
-func (wsc *WebsocketController) WS(conn *websocket.Conn) {
+func (wsc *GameController) Game(conn *websocket.Conn) {
 	var (
 		mt int
 		msg []byte

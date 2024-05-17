@@ -16,10 +16,7 @@ type AuthService struct {
 }
 
 func NewAuthService(db *sqlx.DB, rd *redis.Client) *AuthService {
-	return &AuthService{
-		db: db,
-		rd: rd,
-	}
+	return &AuthService{db, rd}
 }
 
 func (as *AuthService) Login(username, password string) (sessionKey string, err error) {

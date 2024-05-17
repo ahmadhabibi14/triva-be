@@ -2,18 +2,21 @@ package service
 
 import (
 	"triva/internal/repository/quizzes"
+
+	"github.com/go-redis/redis"
+	"github.com/jmoiron/sqlx"
 )
 
 type QuizService struct {
-	quizRepository *quizzes.Quiz
+	db *sqlx.DB
+	rd *redis.Client
 }
 
-func NewQuizService(qr *quizzes.Quiz) *QuizService {
-	return &QuizService{quizRepository: qr}
+func NewQuizService(db *sqlx.DB, rd *redis.Client) *QuizService {
+	return &QuizService{db, rd}
 }
 
-func (s *QuizService) GetQuizzes() (quizzes []quizzes.Quiz, err error) {
-	quizzes, err = s.quizRepository.GetQuizzes()
-
-	return
+func (s *QuizService) GetQuizzes() ([]quizzes.Quiz, error) {
+	quiz := quizzes.NewQuizMutator(s.db)
+	return quiz.GetQuizzes()
 }
