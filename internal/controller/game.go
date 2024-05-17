@@ -8,11 +8,15 @@ import (
 )
 
 type GameController struct {
+	GameAction string
 	netService *service.NetService
 }
 
 func NewGameController(ns *service.NetService) *GameController {
-	return &GameController{netService: ns}
+	return &GameController{
+		GameAction: `/game`,
+		netService: ns,
+	}
 }
 
 func (wsc *GameController) Game(conn *websocket.Conn) {

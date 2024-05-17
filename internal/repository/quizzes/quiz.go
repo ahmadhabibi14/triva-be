@@ -35,9 +35,11 @@ func (q *Quiz) GetQuizzes() (quizzes []Quiz, err error) {
 	
 	err = q.Db.DB.Select(&quizzes, query)
 	if err != nil {
-		logger.Log.Error().Str(`error`, err.Error()).Msg(`failed to get quizzes`)
+		errMsg := errors.New(`failed to get quizzes`)
+		logger.Log.Err(err).Msg(errMsg.Error())
+		err = errMsg
 	}
-	
+
 	return
 }
 
@@ -45,8 +47,9 @@ func (q *Quiz) FindById(id string) error {
 	query := `SELECT * FROM ` + TABLE_Quiz + ` WHERE id = $1 LIMIT 1`
 	err := q.Db.DB.Get(q, query, strings.TrimSpace(id))
 	if err != nil {
-		logger.Log.Err(err)
-		return errors.New(`quiz not found`)
+		errMsg := errors.New(`quiz not found`)
+		logger.Log.Err(err).Msg(errMsg.Error())
+		return errMsg
 	}
 
 	return nil
@@ -61,8 +64,9 @@ RETURNING id, name, user_id, created_at, updated_at`
 	if err := q.Db.DB.QueryRowx(query,
 		helper.RandString(35), q.Name, q.UserId, time.Now(),
 	).StructScan(q); err != nil {
-		logger.Log.Err(err)
-		return err
+		errMsg := errors.New(`failed to insert a new quiz`)
+		logger.Log.Err(err).Msg(errMsg.Error())
+		return errMsg
 	}
 
 	return nil
@@ -77,7 +81,8 @@ RETURNING id, name, user_id, created_at, updated_at`
 	if err := q.Db.DB.QueryRowx(query,
 		q.Name, time.Now(), q.Id,
 	).StructScan(q); err != nil {
-		logger.Log.Err(err)
+		errMsg := errors.New(`failed to update quiz`)
+		logger.Log.Err(err).Msg(errMsg.Error())
 		return err
 	}
 

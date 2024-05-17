@@ -48,3 +48,24 @@ air
 cd client
 pnpm dev
 ```
+
+```bash
+├─ _docker-data       # Docker container data
+├─ bin                # Binary compiled
+├─ client             # Frontend (Svelte)
+├─ cmd                # Apps
+├─ configs            # Configs for service/dependency
+├─ databases          # Database migration stuff
+├─ helper             # Other codes, can be imported anywhere
+├─ internal           # Most logical, including app wrapper
+│   ├─ bootstrap      # App components
+│   ├─ controller     # Business logic, http handler
+│   ├─ repository     # Repository layer, database integration
+│   ├─ service        # Service layer
+│   └─ web            # Web-Server stuff
+├─ logs               # Log files
+├─ script             # Automation scripts, including CI/CD
+├─ test               # Unit test, integration test
+├─ tmp                # Temporary files, for development
+
+```

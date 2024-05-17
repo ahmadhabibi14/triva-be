@@ -4,6 +4,7 @@ import (
 	"errors"
 	"triva/helper"
 	"triva/internal/bootstrap/database"
+	"triva/internal/bootstrap/logger"
 	"triva/internal/repository/users"
 
 	"golang.org/x/crypto/bcrypt"
@@ -20,8 +21,7 @@ func NewAuthService(Db *database.Database) *AuthService {
 func (as *AuthService) Login(username, password string) (sessionKey string, err error) {
 	user := users.NewUserMutator(as.Db)
 	user.Username = username
-	if !user.FindUsernamePassword() {
-		err = errors.New(`username not found`)
+	if err = user.FindUsernamePassword(); err != nil {
 		return
 	}
 
@@ -46,7 +46,9 @@ func (as *AuthService) Register(username, fullName, email, password string) erro
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return errors.New(`failed to set password`)
+		errMsg := errors.New(`failed to set password`)
+		logger.Log.Err(err).Msg(errMsg.Error())
+		return errMsg
 	}
 
 	user.Password = string(hashedPassword)

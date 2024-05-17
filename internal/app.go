@@ -26,7 +26,7 @@ type App struct {
 func (a *App) Init() {
 	a.setupEnv()
 	a.setupLogger()
-	a.setupDatabase()
+	a.setupDatabases()
 	a.setupServices()
 	a.setupHTTP()
 
@@ -50,7 +50,7 @@ func (a *App) setupHTTP() {
 	})
 
 	gameController := controller.NewGameController(a.netService)
-	app.Get("/game", websocket.New(gameController.Game))
+	app.Get(gameController.GameAction, websocket.New(gameController.Game))
 
 	a.httpServer = app
 }
@@ -61,7 +61,7 @@ func (a *App) setupServices() {
 	a.netService = service.NewNetService(a.quizService, a.db)
 }
 
-func (a *App) setupDatabase() {
+func (a *App) setupDatabases() {
 	pq, err := configs.ConnectPostgresSQL()
 	if err != nil {
 		logger.Log.Panic().Str("error", err.Error()).Msg("failed to connect to database")

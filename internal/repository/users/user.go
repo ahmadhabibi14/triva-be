@@ -1,7 +1,6 @@
 package users
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"time"
@@ -56,12 +55,14 @@ VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING username`
 	return nil
 }
 
-func (u *User) FindUsernamePassword() bool {
-	query := `SELECT username, password FROM ` + TABLE_User + ` WHERE username = $1`
+func (u *User) FindUsernamePassword() error {
+	query := `SELECT username, password FROM ` + TABLE_User + ` WHERE username = $1 LIMIT 1`
 	err := u.Db.DB.Get(u, query, u.Username)
 	if err != nil {
-		logger.Log.Err(err).Msg(`failed to find username and password`)
+		errMsg := errors.New(`username not found`)
+		logger.Log.Err(err).Msg(errMsg.Error())
+		return errMsg
 	}
-	
-	return !errors.Is(err, sql.ErrNoRows)
+
+	return nil
 }
