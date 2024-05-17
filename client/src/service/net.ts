@@ -75,7 +75,7 @@ export class NetService {
   private onPacketCallback?: (packet: any) => void;
 
   connect() {
-    this.websocket = new WebSocket('ws://localhost:3000/ws');
+    this.websocket = new WebSocket(import.meta.env.VITE_WEBSOCKET_HOST+'/game');
     this.websocket.onopen = () => {
       console.log('opened connection');
     };
