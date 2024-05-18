@@ -1,6 +1,7 @@
 setup:
 	go install github.com/cosmtrek/air@latest
 	go install -tags "postgres,mysql" github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+	go install github.com/swaggo/swag/cmd/swag@latest
 
 migrate:
 	migrate create -ext sql -dir databases/migration $(state)
@@ -16,6 +17,9 @@ migrate-fix:
 
 migrate-go:
 	go run cmd/database/migrate.go
+
+swagger:
+	swag init -g cmd/triva/main.go --output docs/triva
 
 build:
 	go build -o bin/triva cmd/triva/main.go

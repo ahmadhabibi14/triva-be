@@ -38,6 +38,15 @@ const (
 	LoginOkMsg  = `login successful !`
 )
 
+// Login
+// @Summary 			Login to authenticated
+// @Description		Get auth session
+// @Tags					root
+// @Security			securityDefinitions.apikey
+// @Body					LoginIn
+// @Success				200 {object} LoginOut
+// @Produce				json
+// @Router				/auth/login [post]
 func (ac *AuthController) Login(c *fiber.Ctx) error {
 	in, err := helper.ReadJSON[LoginIn](c, c.Body())
 	if err != nil {

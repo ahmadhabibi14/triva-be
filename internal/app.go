@@ -3,6 +3,7 @@ package internal
 import (
 	"log"
 	"os"
+	"time"
 	"triva/configs"
 	"triva/internal/bootstrap/database"
 	"triva/internal/bootstrap/logger"
@@ -10,6 +11,7 @@ import (
 	"triva/internal/service"
 	"triva/internal/web"
 
+	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 )
@@ -29,6 +31,7 @@ func (a *App) Init() {
 	a.setupDatabases()
 	a.setupServices()
 	a.setupHTTP()
+	a.apiDocs()
 
 	log.Fatal(a.httpServer.Listen(":" + os.Getenv("WEB_PORT")))
 }
@@ -87,4 +90,14 @@ func (a *App) setupEnv() {
 
 func (a *App) setupLogger() {
 	logger.InitLogger()
+}
+
+func (a *App) apiDocs() {
+	a.httpServer.Use(swagger.New(swagger.Config{
+		BasePath: `/`,
+		FilePath: `./docs/triva/swagger.json`,
+		Path: `docs`,
+		Title: `Triva API Documentation`,
+		CacheAge: int(time.Minute) * 30,
+	}))
 }
