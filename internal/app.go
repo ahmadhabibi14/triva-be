@@ -25,6 +25,10 @@ type App struct {
 	netService  *service.NetService
 }
 
+func NewApp() *App {
+	return &App{}
+}
+
 func (a *App) Init() {
 	a.setupEnv()
 	a.setupLogger()

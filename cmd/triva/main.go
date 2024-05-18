@@ -20,6 +20,6 @@ import (
 // @BasePath /
 // @schemes http
 func main() {
-  app := internal.App{}
+  app := internal.NewApp()
   app.Init()
 }
