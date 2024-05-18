@@ -56,6 +56,7 @@ pnpm dev
 ├─ cmd                # Apps
 ├─ configs            # Configs for service/dependency
 ├─ databases          # Database migration stuff
+├─ docs               # Config generated swagger API Docs
 ├─ helper             # Other codes, can be imported anywhere
 ├─ internal           # Most logical, including app wrapper
 │   ├─ bootstrap      # App components
