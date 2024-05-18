@@ -8,18 +8,22 @@ import (
 )
 
 type GameController struct {
-	GameAction string
+	GamePrefix string
 	netService *service.NetService
 }
 
 func NewGameController(ns *service.NetService) *GameController {
 	return &GameController{
-		GameAction: `/game`,
+		GamePrefix: `/game`,
 		netService: ns,
 	}
 }
 
-func (wsc *GameController) Game(conn *websocket.Conn) {
+const (
+	PlayerAction = `/player`
+)
+
+func (gc *GameController) Player(conn *websocket.Conn) {
 	var (
 		mt int
 		msg []byte
@@ -32,6 +36,27 @@ func (wsc *GameController) Game(conn *websocket.Conn) {
 			break
 		}
 
-		wsc.netService.OnIncomingMessage(conn, mt, msg)
+		gc.netService.OnIncomingMessage(conn, mt, msg)
+	}
+}
+
+const (
+	HostAction = `/player`
+)
+
+func (gc *GameController) Host(conn *websocket.Conn) {
+	var (
+		mt int
+		msg []byte
+		err error
+	)
+
+	for {
+		if mt, msg, err = conn.ReadMessage(); err != nil {
+			log.Println("read:", err)
+			break
+		}
+
+		gc.netService.OnIncomingMessage(conn, mt, msg)
 	}
 }

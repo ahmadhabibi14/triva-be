@@ -28,7 +28,7 @@ func NewNetService(qs *QuizService, db *database.Database) *NetService {
 		quizService: qs,
 		db: db,
 		games: []*GameService{},
-}
+	}
 }
 
 type (

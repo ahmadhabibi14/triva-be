@@ -14,7 +14,7 @@ type QuizController struct {
 
 func NewQuizController(qs *service.QuizService) *QuizController {
 	return &QuizController{
-		QuizPrefix:  `/api/quiz`,
+		QuizPrefix:  `/quiz`,
 		quizService: qs,
 	}
 }

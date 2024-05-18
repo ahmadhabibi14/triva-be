@@ -39,18 +39,21 @@ func (a *App) setupHTTP() {
 	middleware.Init()
 
 	authController := controller.NewAuthController(a.authService)
-	app.Route(authController.AuthPrefix, func(app fiber.Router) {
-		app.Post(controller.LoginAction, authController.Login)
-		app.Post(controller.RegisterAction, authController.Register)
+	app.Route(authController.AuthPrefix, func(router fiber.Router) {
+		router.Post(controller.LoginAction, authController.Login)
+		router.Post(controller.RegisterAction, authController.Register)
 	})
 
 	quizController := controller.NewQuizController(a.quizService)
-	app.Route(quizController.QuizPrefix, func(app fiber.Router) {
-		app.Get(controller.GetQuizzesAction, middleware.OPT_Auth, quizController.GetQuizzes)
+	app.Route(quizController.QuizPrefix, func(router fiber.Router) {
+		router.Get(controller.GetQuizzesAction, middleware.OPT_Auth, quizController.GetQuizzes)
 	})
 
 	gameController := controller.NewGameController(a.netService)
-	app.Get(gameController.GameAction, websocket.New(gameController.Game))
+	app.Route(gameController.GamePrefix, func(router fiber.Router) {
+		router.Get(controller.HostAction , websocket.New(gameController.Host))
+		router.Get(controller.PlayerAction , websocket.New(gameController.Player))
+	})
 
 	a.httpServer = app
 }
