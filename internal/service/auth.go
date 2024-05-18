@@ -26,7 +26,9 @@ func (as *AuthService) Login(username, password string) (sessionKey string, err 
 	}
 
 	if passwordMatch := helper.VerifyPassword(password, user.Password); passwordMatch != nil {
-		err = errors.New(`password does not match`)
+		errMsg := errors.New(`password does not match`)
+		logger.Log.Err(passwordMatch).Msg(errMsg.Error())
+		err = errMsg
 		return
 	}
 
