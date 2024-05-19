@@ -99,7 +99,7 @@ func (a *App) setupLogger() {
 func (a *App) apiDocs() {
 	a.httpServer.Use(swagger.New(swagger.Config{
 		BasePath: `/`,
-		FilePath: `./docs/triva/swagger.json`,
+		FilePath: `./docs/swagger.json`,
 		Path: `docs`,
 		Title: `Triva API Documentation`,
 		CacheAge: int(time.Minute) * 30,

@@ -19,7 +19,7 @@ migrate-go:
 	go run cmd/database/migrate.go
 
 swagger:
-	swag init -g cmd/triva/main.go --output docs/triva
+	swag init -g cmd/triva/main.go --output ./docs
 
 build:
 	go build -o bin/triva cmd/triva/main.go
