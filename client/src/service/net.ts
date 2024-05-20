@@ -1,4 +1,4 @@
-import type { Player, QuizQuestion } from '../types/quiz';
+import type { Player, QuizQuestion } from '@/types/quiz';
 
 export enum PacketTypes {
   Connect,
@@ -74,8 +74,30 @@ export class NetService {
 
   private onPacketCallback?: (packet: any) => void;
 
-  connect() {
-    this.websocket = new WebSocket(import.meta.env.VITE_WEBSOCKET_HOST+'/game');
+  connectHost() {
+    this.websocket = new WebSocket(import.meta.env.VITE_WEBSOCKET_HOST+'/game/host');
+    this.websocket.onopen = () => {
+      console.log('opened connection');
+    };
+
+    this.websocket.onmessage = async (event: MessageEvent) => {
+      const arrayBuffer: Iterable<number> = await event.data.arrayBuffer();
+      const bytes: Uint8Array = new Uint8Array(arrayBuffer);
+      const packetId: number = bytes[0];
+
+      const packet = JSON.parse(this.textDecoder.decode(bytes.subarray(1)));
+      packet.id = packetId;
+
+      console.log('Packet ID: ', packetId);
+      console.log('Packet: ',packet);
+
+      if (this.onPacketCallback)
+        this.onPacketCallback(packet);
+    }
+  }
+
+  connectPlayer() {
+    this.websocket = new WebSocket(import.meta.env.VITE_WEBSOCKET_HOST+'/game/player');
     this.websocket.onopen = () => {
       console.log('opened connection');
     };

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import HostLoginView from './HostLoginView.svelte';
-  import HostRegisterView from './HostRegisterView.svelte';
-  import { ModeHostState, ModeHostPassed, ModeHostLogin, ModeHostRegister } from '../../states/mode';
+  import HostLoginView from '@/views/host/HostLoginView.svelte';
+  import HostRegisterView from '@/views/host/HostRegisterView.svelte';
+  import { ModeHostState, ModeHostPassed, ModeHostLogin, ModeHostRegister } from '@/states/mode';
   import { onMount } from 'svelte';
 
   const sessionId: string = localStorage.getItem('session_id') || '';

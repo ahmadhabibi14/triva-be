@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { points } from '../../service/player/player';
+  import { points } from '@/service/player/player';
 
   $: correct = $points > 0;
 </script>

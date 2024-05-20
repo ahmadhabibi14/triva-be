@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, type EventDispatcher } from 'svelte';
-  import type { PlayerGame } from '../../service/player/player';
+  import type { PlayerGame } from '@/service/player/player';
 
   const dispatch: EventDispatcher<any> = createEventDispatcher();
 

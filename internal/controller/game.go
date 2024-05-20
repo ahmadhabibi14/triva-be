@@ -41,7 +41,7 @@ func (gc *GameController) Player(conn *websocket.Conn) {
 }
 
 const (
-	HostAction = `/player`
+	HostAction = `/host`
 )
 
 func (gc *GameController) Host(conn *websocket.Conn) {

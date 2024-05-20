@@ -9,6 +9,7 @@ import (
 	"triva/internal/bootstrap/logger"
 	"triva/internal/repository/users"
 
+	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
@@ -87,7 +88,9 @@ func (m *Middlewares) Recover() {
 	}))
 }
 
-// Optional Middlewares
+// OPTIONAL MIDDLEWARES
+// function name use format: OPT_<MiddlewareName> for any optional middlewares
+// it only used for specific http handler, such as websocket, protected route, etc.
 
 const (
 	errMsgUnauthorized	= `you are unauthorized to process this operation`
@@ -109,7 +112,7 @@ func (m *Middlewares) OPT_Auth(c *fiber.Ctx) error {
 	session := users.NewSessionMutator(m.db)
 	
 	if err := session.GetSession(KEY); err != nil {
-		logger.Log.Error().Str("error", err.Error()).Msg("cannot get session data for " + KEY)
+		logger.Log.Err(err).Msg("cannot get session data for " + KEY)
 
 		c.ClearCookie(configs.AUTH_COOKIE)
 		response := helper.NewHTTPResponse(fiber.StatusUnauthorized, errMsgInvalidKey, nil)
@@ -117,4 +120,11 @@ func (m *Middlewares) OPT_Auth(c *fiber.Ctx) error {
 	}
 
 	return c.Next()
+}
+
+func (m *Middlewares) OPT_WebSocket(c *fiber.Ctx) error {
+	if websocket.IsWebSocketUpgrade(c) {
+		return c.Next()
+	}
+	return fiber.ErrUpgradeRequired
 }

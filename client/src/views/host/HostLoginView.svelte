@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { ModeHostState, ModeHostPassed, ModeHostRegister } from '../../states/mode';
-  import InputBox from '../../lib/InputBox.svelte';
+  import { ModeHostState, ModeHostPassed, ModeHostRegister } from '@/states/mode';
+  import InputBox from '@/lib/InputBox.svelte';
   import { link } from 'svelte-spa-router';
   import { Icon } from 'svelte-icons-pack';
   import { TrOutlineHome } from 'svelte-icons-pack/tr';
   import axios from 'axios';
   import toast, { Toaster } from 'svelte-french-toast';
-  import { type HTTPResponse } from '../../types/http';
+  import { type HTTPResponse } from '@/types/http';
 
   let username: string = '';
   let password: string = '';

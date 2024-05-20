@@ -58,8 +58,8 @@ func (a *App) setupHTTP() {
 
 	gameController := controller.NewGameController(a.netService)
 	app.Route(gameController.GamePrefix, func(router fiber.Router) {
-		router.Get(controller.HostAction , websocket.New(gameController.Host))
-		router.Get(controller.PlayerAction , websocket.New(gameController.Player))
+		router.Get(controller.HostAction, middleware.OPT_Auth, middleware.OPT_WebSocket, websocket.New(gameController.Host))
+		router.Get(controller.PlayerAction, middleware.OPT_WebSocket, websocket.New(gameController.Player))
 	})
 
 	a.httpServer = app

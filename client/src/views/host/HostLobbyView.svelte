@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Button from '../../lib/Button.svelte';
-  import PlayerNameCard from '../../lib/lobby/PlayerNameCard.svelte';
-  import { type HostGame, players } from '../../service/host/host';
+  import Button from '@/lib/Button.svelte';
+  import PlayerNameCard from '@/lib/lobby/PlayerNameCard.svelte';
+  import { type HostGame, players } from '@/service/host/host';
 
 
   export let game: HostGame;

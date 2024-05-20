@@ -1,6 +1,6 @@
 import { writable, type Writable } from 'svelte/store';
 import { GameState, NetService, PacketTypes, type ChangeGameStatePacket, type HostGamePacket, type LeaderboardEntry, type LeaderboardPacket, type Packet, type PlayerJoinPacket, type QuestionShowPacket, type TickPacket } from '../net';
-import type { Player, QuizQuestion } from '../../types/quiz';
+import type { Player, QuizQuestion } from '@/types/quiz';
 
 export const state: Writable<GameState> = writable(GameState.Lobby);
 export const players: Writable<Player[]> = writable([]);
@@ -13,7 +13,7 @@ export class HostGame {
 
   constructor() {
     this.net = new NetService();
-    this.net.connect();
+    this.net.connectHost();
     this.net.onPacket(p => this.onPacket(p));
   }
 

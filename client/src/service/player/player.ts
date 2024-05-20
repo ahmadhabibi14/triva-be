@@ -9,7 +9,7 @@ export class PlayerGame {
 
   constructor() {
     this.net = new NetService();
-    this.net.connect();
+    this.net.connectPlayer();
     this.net.onPacket(p => this.onPacket(p));
   }
 

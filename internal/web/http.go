@@ -19,6 +19,7 @@ func NewWebserver() *fiber.App {
 		Prefork: false,
 		JSONEncoder: json.Marshal,
 		JSONDecoder: json.Unmarshal,
+		EnableTrustedProxyCheck: true,
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
 			var code int = fiber.StatusNotFound
 			var e *fiber.Error
