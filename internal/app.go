@@ -17,9 +17,10 @@ import (
 )
 
 type App struct {
+	// Common
 	httpServer *fiber.App
 	db 				 *database.Database
-
+	// Services
 	authService *service.AuthService
 	quizService *service.QuizService
 	netService  *service.NetService
@@ -37,7 +38,9 @@ func (a *App) Init() {
 	a.setupHTTP()
 	a.apiDocs()
 
-	log.Fatal(a.httpServer.Listen(":" + os.Getenv("WEB_PORT")))
+	port := ":" + os.Getenv("WEB_PORT")
+	if port == ":" { port = ":3000" }
+	log.Fatal(a.httpServer.Listen(port))
 }
 
 func (a *App) setupHTTP() {
