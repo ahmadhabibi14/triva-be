@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { PlayerGame } from '@/service/player/player';
+  import type { PlayerGame } from '../../service/player/player';
 
   export let game: PlayerGame;
   console.log(game);

@@ -1,6 +1,8 @@
 <script lang="ts">
   import { createEventDispatcher, type EventDispatcher } from 'svelte';
-  import type { PlayerGame } from '@/service/player/player';
+  import type { PlayerGame } from '../../service/player/player';
+  import { errorState } from '../../states/error';
+  import toast, { Toaster } from 'svelte-french-toast';
 
   const dispatch: EventDispatcher<any> = createEventDispatcher();
 
@@ -9,10 +11,18 @@
   export let game: PlayerGame;
 
   function join() {
-    dispatch('join');
     game.join(code, name);
   }
+
+  $: {
+    if ($errorState !== '') {
+      toast.error($errorState);
+      errorState.set('');
+    }
+  }
 </script>
+
+<Toaster />
 
 <div class="min-h-screen w-full flex items-center justify-center">
   <div class="flex flex-col gap-5">

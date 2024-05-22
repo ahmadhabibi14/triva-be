@@ -1,7 +1,7 @@
 <script lang="ts">
-  import QuizCard from '@/lib/QuizCard.svelte';
-  import type { HTTPResponse } from '@/types/http';
-  import type { Quiz } from '@/types/quiz';
+  import QuizCard from '../../lib/QuizCard.svelte';
+  import type { HTTPResponse } from '../../types/http';
+  import type { Quiz } from '../../types/quiz';
 
   let quizzes: Quiz[] = [];
 

@@ -1,5 +1,13 @@
 import { writable, type Writable } from 'svelte/store';
-import { GameState, NetService, PacketTypes, type ChangeGameStatePacket, type ConnectPacket, type Packet, type PlayerRevealPacket, type QuestionAnswerPacket } from '../net';
+import { errorState } from '../../states/error';
+import { GameState, NetService, PacketTypes,
+  type ChangeGameStatePacket,
+  type ConnectPacket,
+  type Packet,
+  type PlayerRevealPacket,
+  type QuestionAnswerPacket,
+  type ErrorPacket
+} from '../net';
 
 export const state: Writable<GameState> = writable(GameState.Lobby);
 export const points: Writable<number> = writable(0);
@@ -42,6 +50,14 @@ export class PlayerGame {
       case PacketTypes.PlayerReveal: {
         let data = packet as PlayerRevealPacket;
         points.set(data.points);
+        break;
+      }
+      case PacketTypes.Error: {
+        let data = packet as ErrorPacket;
+        console.log('Setting error');
+        errorState.set(data.error);
+        console.log('Data:', data)
+        console.log('Done setting error');
         break;
       }
     }

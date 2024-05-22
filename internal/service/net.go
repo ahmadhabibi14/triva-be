@@ -4,11 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"triva/internal/bootstrap/database"
+	"triva/internal/bootstrap/logger"
 	"triva/internal/repository/quizzes"
 
 	"github.com/goccy/go-json"
 	"github.com/gofiber/contrib/websocket"
+	"github.com/gofiber/fiber/v2"
 )
 
 const (
@@ -72,6 +75,12 @@ type (
 	LeaderboardPacket struct {
 		Points []LeaderboardEntry `json:"points"`
 	}
+
+	ErrorPacket struct {
+		Code int `json:"code"`
+		Status string `json:"status"`
+		Error string `json:"error"`
+	}
 )
 
 const (
@@ -85,6 +94,7 @@ const (
 	PACKET_QUESTION_ANSWER
 	PACKET_PLAYER_REVEAL
 	PACKET_LEADERBOARD
+	PACKET_ERROR
 )
 
 func (ns *NetService) packetIdToPacket(packetId uint8) any {
@@ -135,6 +145,10 @@ func (ns *NetService) packetToPacketId(packet any) (uint8, error) {
 	case LeaderboardPacket:
 		{
 			return PACKET_LEADERBOARD, nil
+		}
+	case ErrorPacket:
+		{
+			return PACKET_ERROR, nil
 		}
 	}
 
@@ -200,6 +214,13 @@ func (ns *NetService) OnIncomingMessage(conn *websocket.Conn, mt int, msg []byte
 		{
 			game := ns.getGameByCode(data.Code)
 			if game == nil {
+				logger.Log.Err(errors.New(`game code `+data.Code+` is not owned by any host`)).
+					Msg(`game not found`)
+				ns.SendPacket(conn, ErrorPacket{
+					Code: fiber.StatusBadRequest,
+					Status: http.StatusText(fiber.StatusBadRequest),
+					Error: `game not found`,
+				})
 				return
 			}
 			

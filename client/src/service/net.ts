@@ -11,6 +11,7 @@ export enum PacketTypes {
   Answer,
   PlayerReveal,
   Leaderboard,
+  Error,
 }
 
 export enum GameState {
@@ -65,6 +66,12 @@ export interface LeaderboardEntry {
 
 export interface LeaderboardPacket extends Packet {
   points: LeaderboardEntry[];
+}
+
+export interface ErrorPacket extends Packet {
+  code: number;
+  status: string;
+  error: string;
 }
 
 export class NetService {

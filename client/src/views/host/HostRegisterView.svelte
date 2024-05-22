@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { ModeHostState, ModeHostLogin} from '@/states/mode';
-  import InputBox from '@/lib/InputBox.svelte';
+  import { ModeHostState, ModeHostLogin} from '../../states/mode';
+  import InputBox from '../../lib/InputBox.svelte';
   import { link } from 'svelte-spa-router';
   import { Icon } from 'svelte-icons-pack';
   import { TrOutlineHome } from 'svelte-icons-pack/tr';
   import axios from 'axios';
   import toast, { Toaster } from 'svelte-french-toast';
-  import { type HTTPResponse } from '@/types/http';
+  import { type HTTPResponse } from '../../types/http';
 
   let email: string = '';
   let username: string = '';
@@ -30,7 +30,7 @@
     isSubmitted = true;
 
     const payload: registerIn = { email, username, full_name, password }
-    const url: string = import.meta.env.VITE_WEB_HOST+'/api/auth/register';
+    const url: string = import.meta.env.VITE_WEB_HOST+'/auth/register';
 
     await axios.post(url, payload,
       { headers: { 'Content-Type': 'application/json' } }

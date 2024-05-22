@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import QuizChoiceCard from '@/lib/play/QuizChoiceCard.svelte';
-  import type { PlayerGame } from '@/service/player/player';
-  import { COLORS } from '@/types/quiz';
+  import QuizChoiceCard from '../../lib/play/QuizChoiceCard.svelte';
+  import type { PlayerGame } from '../../service/player/player';
+  import { COLORS } from '../../types/quiz';
 
   export let game: PlayerGame;
   let answered: boolean = false; 

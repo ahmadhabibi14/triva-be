@@ -1,8 +1,8 @@
 <script lang="ts">
-  import QuizChoiceCard from '@/lib/play/QuizChoiceCard.svelte';
-  import { type HostGame, currentQuestion, tick, state} from '@/service/host/host';
-  import { GameState } from '@/service/net';
-  import { COLORS, type QuizChoice } from '@/types/quiz';
+  import QuizChoiceCard from '../../lib/play/QuizChoiceCard.svelte';
+  import { type HostGame, currentQuestion, tick, state} from '../../service/host/host';
+  import { GameState } from '../../service/net';
+  import { COLORS, type QuizChoice } from '../../types/quiz';
 
   function getCardColor(choice: QuizChoice, state: GameState, defaultColor: string) {
     if (state !== GameState.Reveal) return defaultColor;

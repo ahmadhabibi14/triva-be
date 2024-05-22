@@ -13,6 +13,8 @@
      */
     "allowJs": true,
     "checkJs": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "isolatedModules": true,
     "paths": {
       "@/*": ["./src/*"]

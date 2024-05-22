@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Leaderboard from '@/lib/Leaderboard.svelte';
-  import { HostGame, leaderboard } from '@/service/host/host';
+  import Leaderboard from '../../lib/Leaderboard.svelte';
+  import { HostGame, leaderboard } from '../../service/host/host';
 
   export let game: HostGame;
 
