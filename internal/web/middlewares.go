@@ -56,7 +56,7 @@ func (m *Middlewares) Cors() {
 func (m *Middlewares) Logger() {
 	var conf fiberLogger.Config
 
-	if os.Getenv("WEB_ENV") == `prod` {
+	if os.Getenv("PROJECT_ENV") == `prod` {
 		file, _ := os.OpenFile(
 			configs.PATH_WEBACCESS_LOG, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666,
 		)

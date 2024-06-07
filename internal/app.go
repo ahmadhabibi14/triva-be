@@ -75,13 +75,10 @@ func (a *App) setupServices() {
 }
 
 func (a *App) setupDatabases() {
-	pq, err := configs.ConnectPostgresSQL()
-	if err != nil {
-		logger.Log.Panic().Str("error", err.Error()).Msg("failed to connect to database")
-	}
+	pq := configs.ConnectPostgresSQL()
 
 	rd := configs.NewRedisClient()
-	_, err = rd.Ping().Result()
+	_, err := rd.Ping().Result()
 	if err != nil {
 		logger.Log.Panic().Str("error", err.Error()).Msg("failed to connect redis")
 	}

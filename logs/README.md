@@ -1,8 +1,11 @@
 ## Put logs here
 
-> Note: log files only appear if variable WEB_ENV (from file .env) sets to "prod"
+> Note: log files only appear if variable PROJECT_ENV (from file .env) sets to "prod"
 
 ```bash
-├─ application.log          # Records log from application
-├─ webaccess.log            # Access log, records incoming http requests
+├─ app                    # Records log from application
+│  └─ app-02-06-2024.log
+├─ sql                    # Records log from SQL queries
+│  └─ sql-02-06-2024.log
+└─ webaccess.log
 ```

@@ -19,13 +19,10 @@ func TestMain(m *testing.M) {
 	configs.LoadEnv()
 	logger.InitLogger()
 
-	Pg, err := configs.ConnectPostgresSQL()
-	if err != nil {
-		panic(err)
-	}
+	Pg := configs.ConnectPostgresSQL()
 
 	Rd := configs.NewRedisClient()
-	_, err = Rd.Ping().Result()
+	_, err := Rd.Ping().Result()
 	if err != nil {
 		panic(err)
 	}

@@ -7,6 +7,7 @@ import (
 	"triva/configs"
 
 	"github.com/rs/zerolog"
+	rotateLogs "github.com/sutantodadang/go-rotate-logs"
 )
 
 var Log zerolog.Logger
@@ -17,15 +18,27 @@ func InitLogger() {
 		logLevel = int(zerolog.InfoLevel)
 	}
 
-	var logOutput io.Writer
+	var zlog zerolog.Logger
 
-	if os.Getenv(`WEB_ENV`) == `prod` {
-		file, _ := os.OpenFile(configs.PATH_APPLICATION_LOG, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-		logOutput = file
+	if os.Getenv(`PROJECT_ENV`) == `prod` {
+		logFile := &rotateLogs.RotateLogsWriter{
+			Config: rotateLogs.Config{
+				Directory:     configs.PATH_APPLICATION_LOG,
+				Filename:      "app.log",
+				MaxSize:       10,
+				UsingTime:     true,
+				FormatTime:    "02-01-2006",
+				CleanOldFiles: true,
+				MaxAge:        60,
+			},
+		}
+		zlog = zerolog.New(logFile).
+			Level(zerolog.Level(logLevel)).
+			With().Timestamp().Caller().Logger()
 	} else {
 		var output io.Writer = zerolog.ConsoleWriter{
 			Out:        os.Stdout,
-			TimeFormat: `03:04 PM`,
+			TimeFormat: `2006/01/02 03:04 PM`,
 			PartsOrder: []string{
 				zerolog.TimestampFieldName,
 				zerolog.LevelFieldName,
@@ -33,15 +46,10 @@ func InitLogger() {
 				zerolog.MessageFieldName,
 			},
 		}
-		logOutput = output
+		zlog = zerolog.New(output).
+			Level(zerolog.Level(logLevel)).
+			With().Timestamp().Caller().Logger()
 	}
 
-	l := zerolog.New(logOutput).
-		Level(zerolog.Level(logLevel)).
-		With().
-		Timestamp().
-		Caller().
-		Logger()
-
-	Log = l
+	Log = zlog
 }
