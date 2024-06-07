@@ -250,7 +250,7 @@ func (gs *GameService) isCorrectChoice(choiceIndex int) bool {
 		return false
 	}
 
-	return choices[choiceIndex].Correct
+	return choices[choiceIndex].IsCorrect
 }
 
 func (gs *GameService) getPointsReward() int {

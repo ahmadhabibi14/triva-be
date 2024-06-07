@@ -16,7 +16,7 @@ const (
 
 type Session struct {
 	Db						*database.Database `json:"-"` 
-	UserID        string				`json:"user_id"`
+	UserID        string				`json:"userId"`
 	Username      string				`json:"username"`
 }
 
