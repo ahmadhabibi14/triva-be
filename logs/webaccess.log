@@ -1,2 +1,1 @@
-{"time": "2024-05-18T03:00:66+08:00", "status": "400", "ip": "127.0.0.1", "ips": "", "latency": "  51.979478ms", "method": "POST", "path": "/api/auth/login"
-{"time": "2024-05-18T03:00:55+08:00", "status": "400", "ip": "127.0.0.1", "ips": "", "latency": "  51.520272ms", "method": "POST", "path": "/api/auth/login"
+{"time": "2024-06-08T01:00:2323+08:00", "status": "400", "ip": "127.0.0.1", "ips": "", "latency": "6.277413ms", "method": "POST", "path": "/auth/login", "user_agent": "PostmanRuntime/7.33.0", "error": "-"}

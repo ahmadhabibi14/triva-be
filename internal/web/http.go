@@ -27,7 +27,7 @@ func NewWebserver() *fiber.App {
 				code = e.Code
 			}
 
-			resp := helper.NewHTTPResponse(code, e.Error(), nil)
+			resp := helper.NewHTTPResponse(e.Error(), nil)
 
 			c.Set(fiber.HeaderContentType, fiber.MIMEApplicationJSON)
 			return c.Status(code).JSON(resp)

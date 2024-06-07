@@ -43,7 +43,7 @@ func (m *Middlewares) RateLimiter() {
 		LimitReached: func(c *fiber.Ctx) error {
 			var errMessage string = "you have exceeded your rate limit, please try again a few moments later"
 
-			response := helper.NewHTTPResponse(fiber.StatusTooManyRequests, errMessage, "")
+			response := helper.NewHTTPResponse(errMessage, nil)
 			return c.Status(fiber.StatusTooManyRequests).JSON(response)
 		},
 	}))
@@ -61,11 +61,16 @@ func (m *Middlewares) Logger() {
 			configs.PATH_WEBACCESS_LOG, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666,
 		)
 		conf = fiberLogger.Config{
-			Format:        "{\"time\": \"${time}\", \"status\": \"${status}\", \"ip\": \"${ip}\", \"ips\": \"${ips}\", \"latency\": \"${latency}\", \"method\": \"${method}\", \"path\": \"${path}\"\n",
+			Format:        "{\"time\": \"${time}\", \"status\": \"${status}\", \"ip\": \"${ip}\", \"ips\": \"${ips}\", \"latency\": \"${latency}\", \"method\": \"${method}\", \"path\": \"${path}\", \"user_agent\": \"${user_agent}\", \"error\": \"${error}\"}\n",
 			TimeFormat:    "2006-01-02T03:00:55+08:00",
 			TimeZone:      "Asia/Makassar",
 			Output:        file,
 			DisableColors: true,
+			CustomTags: map[string]fiberLogger.LogFunc{
+				"user_agent": func(output fiberLogger.Buffer, c *fiber.Ctx, data *fiberLogger.Data, extraParam string) (int, error) {
+					return output.WriteString(c.Get(fiber.HeaderUserAgent))
+				},
+			},
 		}
 	} else {
 		conf = fiberLogger.Config{
@@ -105,7 +110,7 @@ func (m *Middlewares) OPT_Auth(c *fiber.Ctx) error {
 	if sessionId == `` { KEY = apiKey }
 	
 	if KEY == `` {
-		response := helper.NewHTTPResponse(fiber.StatusUnauthorized, errMsgUnauthorized, nil)
+		response := helper.NewHTTPResponse(errMsgUnauthorized, nil)
 		return c.Status(fiber.StatusUnauthorized).JSON(response)
 	}
 
@@ -115,7 +120,7 @@ func (m *Middlewares) OPT_Auth(c *fiber.Ctx) error {
 		logger.Log.Err(err).Msg("cannot get session data for " + KEY)
 
 		c.ClearCookie(configs.AUTH_COOKIE)
-		response := helper.NewHTTPResponse(fiber.StatusUnauthorized, errMsgInvalidKey, nil)
+		response := helper.NewHTTPResponse(errMsgInvalidKey, nil)
 		return c.Status(fiber.StatusUnauthorized).JSON(response)
 	}
 

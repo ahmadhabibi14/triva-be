@@ -6,7 +6,6 @@ import (
 	"time"
 	"triva/helper"
 	"triva/internal/bootstrap/database"
-	"triva/internal/bootstrap/logger"
 )
 
 const TABLE_Quiz string = `Quiz` 
@@ -35,9 +34,7 @@ func (q *Quiz) GetQuizzes() (quizzes []Quiz, err error) {
 	
 	err = q.Db.DB.Select(&quizzes, query)
 	if err != nil {
-		errMsg := errors.New(`failed to get quizzes`)
-		logger.Log.Err(err).Msg(errMsg.Error())
-		err = errMsg
+		err = errors.New(`failed to get quizzes`)
 	}
 
 	return
@@ -47,9 +44,7 @@ func (q *Quiz) FindById(id string) error {
 	query := `SELECT * FROM ` + TABLE_Quiz + ` WHERE id = $1 LIMIT 1`
 	err := q.Db.DB.Get(q, query, strings.TrimSpace(id))
 	if err != nil {
-		errMsg := errors.New(`quiz not found`)
-		logger.Log.Err(err).Msg(errMsg.Error())
-		return errMsg
+		return errors.New(`quiz not found`)
 	}
 
 	return nil
@@ -64,9 +59,7 @@ RETURNING id, name, user_id, created_at, updated_at`
 	if err := q.Db.DB.QueryRowx(query,
 		helper.RandString(35), q.Name, q.UserId, time.Now(),
 	).StructScan(q); err != nil {
-		errMsg := errors.New(`failed to insert a new quiz`)
-		logger.Log.Err(err).Msg(errMsg.Error())
-		return errMsg
+		return errors.New(`failed to insert a new quiz`)
 	}
 
 	return nil
@@ -81,9 +74,7 @@ RETURNING id, name, user_id, created_at, updated_at`
 	if err := q.Db.DB.QueryRowx(query,
 		q.Name, time.Now(), q.Id,
 	).StructScan(q); err != nil {
-		errMsg := errors.New(`failed to update quiz`)
-		logger.Log.Err(err).Msg(errMsg.Error())
-		return err
+		return errors.New(`failed to update quiz`)
 	}
 
 	return nil

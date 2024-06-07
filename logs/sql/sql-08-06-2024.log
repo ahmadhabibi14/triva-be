@@ -1,0 +1,4 @@
+{"level":"debug","conn_id":"8uQsYcE4CA2Sgk06","duration":3.841067,"time":"2024-06-08T01:30:44+08:00","message":"Connect"}
+{"level":"debug","args":["ahmadhabibi14"],"conn_id":"8uQsYcE4CA2Sgk06","duration":1.09183,"query":"SELECT username, password FROM Users WHERE username = $1 LIMIT 1","time":"2024-06-08T01:30:44+08:00","message":"QueryContext"}
+{"level":"debug","conn_id":"cw6yYe_YIOIOGgcy","duration":4.522649,"time":"2024-06-08T01:32:23+08:00","message":"Connect"}
+{"level":"debug","args":["ahmadhabibi14"],"conn_id":"cw6yYe_YIOIOGgcy","duration":1.19771,"query":"SELECT username, password FROM Users WHERE username = $1 LIMIT 1","time":"2024-06-08T01:32:23+08:00","message":"QueryContext"}

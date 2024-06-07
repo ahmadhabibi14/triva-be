@@ -26,10 +26,10 @@ const (
 func (qc *QuizController) GetQuizzes(c *fiber.Ctx) error {
 	quizzes, err := qc.quizService.GetQuizzes()
 	if err != nil {
-		response := helper.NewHTTPResponse(fiber.StatusBadRequest, err.Error(), ``)
+		response := helper.NewHTTPResponse(err.Error(), ``)
 		return c.Status(fiber.StatusBadRequest).JSON(response)
 	}
 
-	response := helper.NewHTTPResponse(fiber.StatusOK, ``, quizzes)
+	response := helper.NewHTTPResponse(``, quizzes)
 	return c.Status(fiber.StatusOK).JSON(response)
 }
