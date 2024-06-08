@@ -15,15 +15,6 @@ services:
     restart: on-failure
     networks:
       - triva-network
-  pgadmin:
-    image: adminer
-    restart: on-failure
-    depends_on: 
-      - postgres
-    ports:
-      - 8080:8080
-    networks:
-      - triva-network
   redis:
     image: redis
     container_name: triva-redis

@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: triva-db
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${POSTGRES_DB}"
+    ports:
+      - 5432:5432
+    volumes:
+      - ./_docker-data/postgres:/var/lib/postgresql/data
+    restart: on-failure
+    networks:
+      - triva-network
+    env_file:
+      - .env.dev
+  pgadmin:
+    image: adminer
+    restart: on-failure
+    depends_on: 
+      - postgres
+    ports:
+      - 8080:8080
+    networks:
+      - triva-network
+    env_file:
+      - .env.dev
+  redis:
+    image: redis
+    container_name: triva-redis
+    ports:
+      - 6379:6379
+    volumes:
+      - ./_docker-data/redis:/data
+    networks:
+      - triva-network
+    env_file:
+      - .env.dev
+
+networks:
+  triva-network:

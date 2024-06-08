@@ -12,7 +12,8 @@
 ### Start docker service
 ```bash
 sudo systemctl start docker
-docker-compose up -d
+
+make docker-dev
 ```
 
 ### Make database migration

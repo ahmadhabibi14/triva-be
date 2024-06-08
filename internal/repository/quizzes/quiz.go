@@ -15,10 +15,10 @@ type Quiz struct {
 
 	Id 				string 					`db:"id" json:"id"`
 	Name 			string 					`db:"name" json:"name"`
-	UserId 		string 					`db:"userId" json:"userId"`
-	CreatedAt time.Time 			`db:"createdAt" json:"createdAt"`
-	UpdatedAt time.Time 			`db:"updatedAt" json:"updatedAt"`
-	DeletedAt time.Time 			`db:"deletedAt" json:"deletedAt"`
+	UserId 		string 					`db:"user_id" json:"user_id"`
+	CreatedAt time.Time 			`db:"created_at" json:"created_at"`
+	UpdatedAt time.Time 			`db:"updated_at" json:"updated_at"`
+	DeletedAt time.Time 			`db:"deleted_at" json:"deleted_at"`
 	Questions []QuizQuestion	`db:"-" json:"questions"`
 }
 
@@ -52,9 +52,9 @@ func (q *Quiz) FindById(id string) error {
 
 func (q *Quiz) Insert() error {
 	query := `INSERT INTO ` + TABLE_Quiz + `
-(id, name, userId, createdAt) VALUES ($1, $2, $3, $4, $5)
-ON CONFLICT (userId) DO NOTHING
-RETURNING id, name, userId, createdAt, updatedAt`
+(id, name, user_id, created_at) VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT (user_id) DO NOTHING
+RETURNING id, name, user_id, created_at, updated_at`
 
 	if err := q.Db.DB.QueryRowx(query,
 		helper.RandString(35), q.Name, q.UserId, time.Now(),
@@ -65,11 +65,11 @@ RETURNING id, name, userId, createdAt, updatedAt`
 	return nil
 }
 
-func (q *Quiz) UpdateById() error {
+func (q *Quiz) UpdateNameById() error {
 	query := `UPDATE ` + TABLE_Quiz + `
-SET name = $1, updatedAt = $2
+SET name = $1, updated_at = $2
 WHERE id = $3
-RETURNING id, name, userId, createdAt, updatedAt`
+RETURNING id, name, user_id, created_at, updated_at`
 
 	if err := q.Db.DB.QueryRowx(query,
 		q.Name, time.Now(), q.Id,

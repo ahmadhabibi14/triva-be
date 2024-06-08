@@ -4,7 +4,7 @@ CREATE TABLE Users (
   full_name VARCHAR(255) NOT NULL,
   email VARCHAR(100) UNIQUE,
   password VARCHAR(100) NOT NULL,
-  avatar VARCHAR(255) NOT NULL DEFAULT '/img/avatars/default.png',
+  avatar_url VARCHAR(255) NOT NULL DEFAULT '/img/avatars/default.png',
   google_id VARCHAR(255) DEFAULT '',
   facebook_id VARCHAR(255) DEFAULT '',
   github_id VARCHAR(255) DEFAULT '',
@@ -26,6 +26,8 @@ CREATE TABLE QuizQuestion (
   id VARCHAR(36) PRIMARY KEY,
   quiz_id VARCHAR(36) REFERENCES Quiz(id),
   name VARCHAR(255) NOT NULL,
+  is_use_image BOOLEAN,
+  image_url VARCHAR(255) DEFAULT '',
   created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
   updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
   deleted_at TIMESTAMP WITHOUT TIME ZONE
@@ -35,7 +37,7 @@ CREATE TABLE QuizChoice (
   id VARCHAR(36) PRIMARY KEY,
   question_id VARCHAR(36) REFERENCES QuizQuestion(id),
   name VARCHAR(255) NOT NULL,
-  correct BOOLEAN,
+  is_correct BOOLEAN,
   created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
   updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
   deleted_at TIMESTAMP WITHOUT TIME ZONE

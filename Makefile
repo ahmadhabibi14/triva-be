@@ -26,3 +26,9 @@ build:
 
 run:
 	go run cmd/triva/main.go
+
+docker-dev:
+	docker-compose -f docker-compose.dev.yml up -d
+
+docker-prod:
+	docker-compose -f docker-compose.prod.yml up -d

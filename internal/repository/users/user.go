@@ -16,16 +16,16 @@ type User struct {
 
 	Id 					string 		`db:"id" json:"id"`
 	Username 		string 		`db:"username" json:"username"`
-	FullName 		string 		`db:"fullName" json:"fullName"`
+	FullName 		string 		`db:"full_name" json:"full_name"`
 	Email 			string 		`db:"email" json:"email"`
 	Password 		string 		`db:"password" json:"password"`
-	Avatar 			string 		`db:"avatar" json:"avatar"`
-	GoogleId 		string 		`db:"googleId" json:"googleId"`
-	FacebookId	string 		`db:"facebookId" json:"facebookId"`
-	GithubId 		string 		`db:"githubId" json:"githubId"`
-	CreatedAt 	time.Time `db:"createdAt" json:"createdAt"`
-	UpdatedAt 	time.Time `db:"updatedAt" json:"updatedAt"`
-	DeletedAt 	time.Time `db:"deletedAt" json:"deletedAt"`
+	AvatarURL		string 		`db:"avatar_url" json:"avatar_url"`
+	GoogleId 		string 		`db:"google_id" json:"google_id"`
+	FacebookId	string 		`db:"facebook_id" json:"facebook_id"`
+	GithubId 		string 		`db:"github_id" json:"github_id"`
+	CreatedAt 	time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt 	time.Time `db:"updated_at" json:"updated_at"`
+	DeletedAt 	time.Time `db:"deleted_at" json:"deleted_at"`
 }
 
 func NewUserMutator(Db *database.Database) *User {
@@ -33,7 +33,7 @@ func NewUserMutator(Db *database.Database) *User {
 }
 
 func (u *User) CreateUser() error {
-	query := `INSERT INTO ` + TABLE_User +` (id, username, fullName, email, password, createdAt, updatedAt)
+	query := `INSERT INTO ` + TABLE_User +` (id, username, full_name, email, password, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING username`
 	
 	uid := uuid.New().String()
