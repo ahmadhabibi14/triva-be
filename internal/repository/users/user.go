@@ -70,7 +70,7 @@ RETURNING id, username, full_name, email, avatar_url,
 	google_id, facebook_id, github_id, created_at, updated_at`
 
 	if err := u.Db.DB.QueryRowx(query,
-		u.AvatarURL, u.UpdatedAt, u.Id,
+		u.AvatarURL, time.Now(), u.Id,
 	).StructScan(u); err != nil {
 		return errors.New(`failed to update avatar`)
 	}
