@@ -8,5 +8,9 @@ const (
 )
 
 const (
+	URL_AVATAR_IMAGE			= `/image/avatars/`
+)
+
+const (
 	AUTH_COOKIE = `session_id`
 )

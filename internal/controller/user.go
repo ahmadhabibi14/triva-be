@@ -44,13 +44,19 @@ const (
 )
 
 func (uc *UserController) UpdateAvatar(c *fiber.Ctx) error {
+	session, err := getSession(uc.userService.Db, c)
+	if err != nil {
+		response := helper.NewHTTPResponse(err.Error(), nil)
+		return c.Status(fiber.StatusBadRequest).JSON(response)
+	}
+
 	imgFile, err := c.FormFile("avatar")
 	if err != nil {
 		response := helper.NewHTTPResponse(`file cannot be empty`, nil)
 		return c.Status(fiber.StatusBadRequest).JSON(response)
 	}
 
-	user, err := uc.userService.UpdateAvatar(imgFile)
+	user, err := uc.userService.UpdateAvatar(imgFile, session.UserID)
 	if err != nil {
 		response := helper.NewHTTPResponse(err.Error(), nil)
 		return c.Status(fiber.StatusBadRequest).JSON(response)

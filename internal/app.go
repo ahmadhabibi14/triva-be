@@ -57,7 +57,7 @@ func (a *App) setupHTTP() {
 
 	userController := controller.NewUserController(a.userService)
 	app.Route(userController.UserPrefix, func(router fiber.Router) {
-		router.Post(controller.UpdateAvatarAction, userController.UpdateAvatar)
+		router.Post(controller.UpdateAvatarAction, middleware.OPT_Auth, userController.UpdateAvatar)
 	})
 
 	quizController := controller.NewQuizController(a.quizService)

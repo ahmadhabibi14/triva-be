@@ -2,3 +2,7 @@ _docker-data
 
 bin/triva
 tmp/main
+
+storage/**/*.jpg
+storage/**/*.png
+storage/**/*.jpeg

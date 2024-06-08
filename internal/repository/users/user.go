@@ -52,7 +52,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING username`
 }
 
 func (u *User) FindUsernamePassword() error {
-	query := `SELECT username, password FROM ` + TABLE_USER + ` WHERE username = $1 LIMIT 1`
+	query := `SELECT username, password, id FROM ` + TABLE_USER + ` WHERE username = $1 LIMIT 1`
 	err := u.Db.DB.Get(u, query, u.Username)
 	if err != nil {
 		return errors.New(`username not found`)
