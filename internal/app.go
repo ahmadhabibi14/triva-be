@@ -22,6 +22,7 @@ type App struct {
 	db 				 *database.Database
 	// Services
 	authService *service.AuthService
+	userService *service.UserService
 	quizService *service.QuizService
 	netService  *service.NetService
 }
@@ -54,6 +55,11 @@ func (a *App) setupHTTP() {
 		router.Post(controller.RegisterAction, authController.Register)
 	})
 
+	userController := controller.NewUserController(a.userService)
+	app.Route(userController.UserPrefix, func(router fiber.Router) {
+		router.Post(controller.UpdateAvatarAction, userController.UpdateAvatar)
+	})
+
 	quizController := controller.NewQuizController(a.quizService)
 	app.Route(quizController.QuizPrefix, func(router fiber.Router) {
 		router.Get(controller.GetQuizzesAction, middleware.OPT_Auth, quizController.GetQuizzes)
@@ -70,6 +76,7 @@ func (a *App) setupHTTP() {
 
 func (a *App) setupServices() {
 	a.authService = service.NewAuthService(a.db)
+	a.userService = service.NewUserService(a.db)
 	a.quizService = service.NewQuizService(a.db)
 	a.netService = service.NewNetService(a.quizService, a.db)
 }

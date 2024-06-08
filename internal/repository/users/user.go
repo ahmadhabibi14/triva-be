@@ -9,7 +9,7 @@ import (
 	"github.com/lib/pq"
 )
 
-const TABLE_User = `Users`
+const TABLE_USER = `users`
 
 type User struct {
 	Db *database.Database `db:"-" json:"-"`
@@ -33,7 +33,7 @@ func NewUserMutator(Db *database.Database) *User {
 }
 
 func (u *User) CreateUser() error {
-	query := `INSERT INTO ` + TABLE_User +` (id, username, full_name, email, password, created_at, updated_at)
+	query := `INSERT INTO ` + TABLE_USER +` (id, username, full_name, email, password, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING username`
 	
 	uid := uuid.New().String()
@@ -52,10 +52,27 @@ VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING username`
 }
 
 func (u *User) FindUsernamePassword() error {
-	query := `SELECT username, password FROM ` + TABLE_User + ` WHERE username = $1 LIMIT 1`
+	query := `SELECT username, password FROM ` + TABLE_USER + ` WHERE username = $1 LIMIT 1`
 	err := u.Db.DB.Get(u, query, u.Username)
 	if err != nil {
 		return errors.New(`username not found`)
+	}
+
+	return nil
+}
+
+func (u *User) UpdateAvatarById() error {
+	query := `UPDATE ` + TABLE_USER + `
+SET avatar_url = $1,
+	updated_at = $2
+WHERE id = $3
+RETURNING id, username, full_name, email, avatar_url,
+	google_id, facebook_id, github_id, created_at, updated_at`
+
+	if err := u.Db.DB.QueryRowx(query,
+		u.AvatarURL, u.UpdatedAt, u.Id,
+	).StructScan(u); err != nil {
+		return errors.New(`failed to update avatar`)
 	}
 
 	return nil
