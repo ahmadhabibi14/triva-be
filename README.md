@@ -53,7 +53,6 @@ pnpm dev
 ```bash
 ├─ _docker-data       # Docker container data
 ├─ bin                # Binary compiled
-├─ client             # Frontend (Svelte)
 ├─ cmd                # Apps
 ├─ configs            # Configs for service/dependency
 ├─ databases          # Database migration stuff
@@ -68,6 +67,6 @@ pnpm dev
 ├─ logs               # Log files
 ├─ script             # Automation scripts, including CI/CD
 ├─ test               # Unit test, integration test
-├─ tmp                # Temporary files, for development
+└─ tmp                # Temporary files, for development
 
 ```
