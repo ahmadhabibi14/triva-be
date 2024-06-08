@@ -2,6 +2,7 @@ package controller
 
 import (
 	"triva/helper"
+	"triva/internal/repository/users"
 	"triva/internal/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -23,7 +24,7 @@ const (
 	GetQuizzesAction = `/quizzes`
 )
 
-func (qc *QuizController) GetQuizzes(c *fiber.Ctx) error {
+func (qc *QuizController) GetQuizzes(c *fiber.Ctx, session *users.Session) error {
 	quizzes, err := qc.quizService.GetQuizzes()
 	if err != nil {
 		response := helper.NewHTTPResponse(err.Error(), ``)

@@ -3,6 +3,7 @@ package controller
 import (
 	"time"
 	"triva/helper"
+	"triva/internal/repository/users"
 	"triva/internal/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -43,13 +44,7 @@ const (
 	UpdateAvatarOkMsg  = `avatar updated`
 )
 
-func (uc *UserController) UpdateAvatar(c *fiber.Ctx) error {
-	session, err := getSession(uc.userService.Db, c)
-	if err != nil {
-		response := helper.NewHTTPResponse(err.Error(), nil)
-		return c.Status(fiber.StatusBadRequest).JSON(response)
-	}
-
+func (uc *UserController) UpdateAvatar(c *fiber.Ctx, session *users.Session) error {
 	imgFile, err := c.FormFile("avatar")
 	if err != nil {
 		response := helper.NewHTTPResponse(`file cannot be empty`, nil)

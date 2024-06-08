@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 	"triva/configs"
+	"triva/helper"
 	"triva/internal/bootstrap/database"
 	"triva/internal/bootstrap/logger"
 	"triva/internal/controller"
@@ -57,12 +58,28 @@ func (a *App) setupHTTP() {
 
 	userController := controller.NewUserController(a.userService)
 	app.Route(userController.UserPrefix, func(router fiber.Router) {
-		router.Post(controller.UpdateAvatarAction, middleware.OPT_Auth, userController.UpdateAvatar)
+		router.Post(controller.UpdateAvatarAction, func(c *fiber.Ctx) error {
+			session, err := web.GetSession(a.db, c)
+			if err != nil {
+				response := helper.NewHTTPResponse(err.Error(), nil)
+				return c.Status(fiber.StatusBadRequest).JSON(response)
+			}
+
+			return userController.UpdateAvatar(c, session)
+		})
 	})
 
 	quizController := controller.NewQuizController(a.quizService)
 	app.Route(quizController.QuizPrefix, func(router fiber.Router) {
-		router.Get(controller.GetQuizzesAction, middleware.OPT_Auth, quizController.GetQuizzes)
+		router.Get(controller.GetQuizzesAction, func(c *fiber.Ctx) error {
+			session, err := web.GetSession(a.db, c)
+			if err != nil {
+				response := helper.NewHTTPResponse(err.Error(), nil)
+				return c.Status(fiber.StatusBadRequest).JSON(response)
+			}
+
+			return quizController.GetQuizzes(c, session)
+		})
 	})
 
 	gameController := controller.NewGameController(a.netService)

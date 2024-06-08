@@ -1,4 +1,4 @@
-package controller
+package web
 
 import (
 	"errors"
@@ -10,12 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-const (
-	errMsgUnauthorized	= `you are unauthorized to process this operation`
-	errMsgInvalidKey		= `invalid session key`
-)
-
-func getSession(db *database.Database, c *fiber.Ctx) (session *users.Session, err error) {
+func GetSession(db *database.Database, c *fiber.Ctx) (session *users.Session, err error) {
 	sessionId := c.Cookies(configs.AUTH_COOKIE, ``)
 	apiKey := c.Get("X-API-KEY", ``)
 
