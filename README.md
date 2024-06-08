@@ -13,7 +13,7 @@
 ```bash
 sudo systemctl start docker
 
-make docker-dev
+make docker-dev-up
 ```
 
 ### Make database migration
