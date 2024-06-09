@@ -23,8 +23,8 @@ func NewUserController(userService *service.UserService) *UserController {
 
 type (
 	UpdateAvatarIn struct {
-		Avatar 			string 			`json:"avatar" form:"avatar"`
-	}
+		Avatar 			string 		`json:"avatar" form:"avatar"`
+	} // @name UpdateAvatarIn
 	UpdateAvatarOut struct {
 		Id 					string 		`json:"id"`
 		Username 		string 		`json:"username"`
@@ -36,7 +36,7 @@ type (
 		GithubId 		string 		`json:"github_id"`
 		CreatedAt 	time.Time `json:"created_at"`
 		UpdatedAt 	time.Time `json:"updated_at"`
-	}
+	} // @name UpdateAvatarOut
 )
 
 const (
@@ -44,6 +44,12 @@ const (
 	UpdateAvatarOkMsg  = `avatar updated`
 )
 
+// @Summary 			Update avatar
+// @Tags					User
+// @Param 				requestBody  body  UpdateAvatarIn  true  "Avatar image"
+// @Success				200 {object} UpdateAvatarOut
+// @Produce				json
+// @Router				/user/updateAvatar [post]
 func (uc *UserController) UpdateAvatar(c *fiber.Ctx, session *users.Session) error {
 	imgFile, err := c.FormFile("avatar")
 	if err != nil {

@@ -8,7 +8,7 @@ import (
 
 type HTTPResponse struct {
 	Errors 	string	`json:"errors"`
-	Data   	any		`json:"data"`
+	Data   	any			`json:"data,omitempty"`
 }
 
 func NewHTTPResponse(errors string, data any) HTTPResponse {
@@ -25,9 +25,9 @@ func ReadJSON[T any](c *fiber.Ctx, b []byte) (T, error) {
 		return body, errors.New(`invalid payload, please check your request and try again`)
 	}
 
-	errvalid := ValidateStruct(body)
-	if errvalid != nil {
-		return body, errvalid
+	err = ValidateStruct(body)
+	if err != nil {
+		return body, err
 	}
 
 	return body, nil

@@ -26,11 +26,11 @@ type (
 	LoginIn struct {
 		Username string `json:"username" form:"username" validate:"required,omitempty,min=5"`
 		Password string `json:"password" form:"password" validate:"required,min=8"`
-	}
+	} // @name LoginIn
 	LoginOut struct {
 		Session string `json:"session" form:"session"`
 		Message string `json:"message" form:"message"`
-	}
+	} // @name LoginOut
 )
 
 const (
@@ -38,12 +38,9 @@ const (
 	LoginOkMsg  = `login successful !`
 )
 
-// Login
 // @Summary 			Login to authenticated
-// @Description		Get auth session
-// @Tags					root
-// @Security			securityDefinitions.apikey
-// @Body					LoginIn
+// @Tags					Auth
+// @Param 				requestBody  body  LoginIn  true  "User credentials"
 // @Success				200 {object} LoginOut
 // @Produce				json
 // @Router				/auth/login [post]
@@ -73,10 +70,10 @@ type (
 		FullName string `json:"full_name" form:"full_name" validate:"required,omitempty,min=5"`
 		Email    string `json:"email" form:"email" validate:"required,email"`
 		Password string `json:"password" form:"password" validate:"required,min=8"`
-	}
+	} // @name RegisterIn
 	RegisterOut struct {
 		Message string `json:"message" form:"message"`
-	}
+	} // @name RegisterOut
 )
 
 const (
@@ -84,6 +81,12 @@ const (
 	RegisterOkMsg  = `user created !`
 )
 
+// @Summary 			Regiser to create an account
+// @Tags					Auth
+// @Param 				requestBody  body  RegisterIn  true  "User data"
+// @Success				200 {object} RegisterOut
+// @Produce				json
+// @Router				/auth/register [post]
 func (ac *AuthController) Register(c *fiber.Ctx) error {
 	in, err := helper.ReadJSON[RegisterIn](c, c.Body())
 	if err != nil {
@@ -112,6 +115,10 @@ func (ac *AuthController) ResetPassword(c *fiber.Ctx) error {
 func (ac *AuthController) ForgotPassword(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{`ok`: true})
 }
+
+// ##################################### //
+// ########### Utilities ############### //
+// ##################################### //
 
 func (ac *AuthController) setCookie(c *fiber.Ctx, sessionId string) {
 	// 2 months expired

@@ -1,10 +1,74 @@
 basePath: /
 definitions:
-  controller.LoginOut:
+  LoginIn:
+    properties:
+      password:
+        minLength: 8
+        type: string
+      username:
+        minLength: 5
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  LoginOut:
     properties:
       message:
         type: string
       session:
+        type: string
+    type: object
+  RegisterIn:
+    properties:
+      email:
+        type: string
+      full_name:
+        minLength: 5
+        type: string
+      password:
+        minLength: 8
+        type: string
+      username:
+        minLength: 5
+        type: string
+    required:
+    - email
+    - full_name
+    - password
+    - username
+    type: object
+  RegisterOut:
+    properties:
+      message:
+        type: string
+    type: object
+  UpdateAvatarIn:
+    properties:
+      avatar:
+        type: string
+    type: object
+  UpdateAvatarOut:
+    properties:
+      avatar_url:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      facebook_id:
+        type: string
+      full_name:
+        type: string
+      github_id:
+        type: string
+      google_id:
+        type: string
+      id:
+        type: string
+      updated_at:
+        type: string
+      username:
         type: string
     type: object
 host: localhost:3000
@@ -23,19 +87,61 @@ info:
 paths:
   /auth/login:
     post:
-      description: Get auth session
+      parameters:
+      - description: User credentials
+        in: body
+        name: requestBody
+        required: true
+        schema:
+          $ref: '#/definitions/LoginIn'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controller.LoginOut'
-      security:
-      - securityDefinitions.apikey: []
+            $ref: '#/definitions/LoginOut'
       summary: Login to authenticated
       tags:
-      - root
+      - Auth
+  /auth/register:
+    post:
+      parameters:
+      - description: User data
+        in: body
+        name: requestBody
+        required: true
+        schema:
+          $ref: '#/definitions/RegisterIn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/RegisterOut'
+      summary: Regiser to create an account
+      tags:
+      - Auth
+  /user/updateAvatar:
+    post:
+      parameters:
+      - description: Avatar image
+        in: body
+        name: requestBody
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateAvatarIn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/UpdateAvatarOut'
+      summary: Update avatar
+      tags:
+      - User
 schemes:
 - http
 swagger: "2.0"
