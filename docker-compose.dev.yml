@@ -19,6 +19,7 @@ services:
       - .env.dev
   pgadmin:
     image: adminer
+    container_name: triva-pgadmin
     restart: on-failure
     depends_on: 
       - postgres
