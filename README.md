@@ -1,13 +1,11 @@
 # Triva - Quiz App
 
 ### Tech Stack
-1. [Svelte](https://svelte.dev/)
-2. [TypeScript](https://www.typescriptlang.org/)
-3. [TailwindCSS](https://tailwindcss.com/)
-4. [Golang](https://go.dev)
-5. [Fiber](https://gofiber.io/)
-6. [PostgreSQL](https://www.postgresql.org/)
-7. [Redis](https://redis.io/)
+1. [Golang](https://go.dev)
+2. [Fiber](https://gofiber.io/)
+3. [PostgreSQL](https://www.postgresql.org/)
+4. [Redis](https://redis.io/)
+5. [Docker](https://docker.com/)
 
 ### Start docker service
 ```bash
