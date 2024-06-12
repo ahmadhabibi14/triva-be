@@ -23,7 +23,7 @@ func InitLogger() {
 	if os.Getenv(`PROJECT_ENV`) == `prod` {
 		logFile := &rotateLogs.RotateLogsWriter{
 			Config: rotateLogs.Config{
-				Directory:     configs.PATH_APPLICATION_LOG,
+				Directory:     configs.OS_PATH_APPLICATION_LOG,
 				Filename:      "app.log",
 				MaxSize:       10,
 				UsingTime:     true,

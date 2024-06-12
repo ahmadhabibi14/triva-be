@@ -52,22 +52,29 @@ func (us *UserService) UpdateAvatar(img *multipart.FileHeader, userId string) (u
 	extension := strings.ToLower(filepath.Ext(img.Filename))
 
 	imgFilename := helper.RandString(40) + extension
-	fullImgFileName := configs.PATH_AVATAR_IMAGE + imgFilename
+	fullImgFileName := filepath.Join(configs.OS_PATH_AVATAR_IMAGE, imgFilename)
+
+	err = os.MkdirAll(configs.OS_PATH_AVATAR_IMAGE, os.ModePerm)
+	if err != nil {
+		logger.Log.Err(err).Msg(`error while creating directory`)
+		return
+	}
 
 	writer, err := os.Create(fullImgFileName)
 	if err != nil {
+		logger.Log.Err(err).Msg(`error while creating file`)
 		return
 	}
 
 	err = resizeImage(writer, reader, contentType, 256)
 	if err != nil {
-		logger.Log.Err(err)
+		logger.Log.Err(err).Msg(`error while resizing image`)
 		return
 	}
 
 	user = users.NewUserMutator(us.Db)
 	user.Id = userId
-	user.AvatarURL = configs.URL_AVATAR_IMAGE + imgFilename
+	user.AvatarURL = configs.WEB_PATH_AVATAR_IMAGE + imgFilename
 
 	err = user.UpdateAvatarById()
 	if err != nil {

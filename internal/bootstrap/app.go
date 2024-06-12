@@ -59,6 +59,9 @@ func (a *App) setupHTTP() {
 	middleware := web.NewMiddlewares(app, a.db)
 	middleware.Init()
 
+	// serve static files
+	app.Static("/", configs.OS_PATH_STATIC_FILES)
+
 	authController := controller.NewAuthController(a.authService)
 	app.Route(authController.AuthPrefix, func(router fiber.Router) {
 		router.Post(controller.LoginAction, authController.Login)

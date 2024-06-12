@@ -1,14 +1,15 @@
 package configs
 
 const (
-	PATH_WEBACCESS_LOG   	= `logs/webaccess.log`
-	PATH_APPLICATION_LOG	= `logs/app`
-	PATH_SQL_LOG					= `logs/sql`
-	PATH_AVATAR_IMAGE			= `./storage/image/avatars/`
+	OS_PATH_WEBACCESS_LOG   	= `logs/webaccess.log`
+	OS_PATH_APPLICATION_LOG		= `logs/app`
+	OS_PATH_SQL_LOG						= `logs/sql`
+	OS_PATH_AVATAR_IMAGE			= `./storage/image/avatars`
+	OS_PATH_STATIC_FILES			= `./storage`
 )
 
 const (
-	URL_AVATAR_IMAGE			= `/image/avatars/`
+	WEB_PATH_AVATAR_IMAGE			= `/image/avatars/`
 )
 
 const (

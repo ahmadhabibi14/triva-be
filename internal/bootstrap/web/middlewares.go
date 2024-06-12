@@ -58,7 +58,7 @@ func (m *Middlewares) Logger() {
 
 	if os.Getenv("PROJECT_ENV") == `prod` {
 		file, _ := os.OpenFile(
-			configs.PATH_WEBACCESS_LOG, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666,
+			configs.OS_PATH_WEBACCESS_LOG, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666,
 		)
 		conf = fiberLogger.Config{
 			Format:        "{\"time\": \"${time}\", \"status\": \"${status}\", \"ip\": \"${ip}\", \"ips\": \"${ips}\", \"latency\": \"${latency}\", \"method\": \"${method}\", \"path\": \"${path}\", \"user_agent\": \"${user_agent}\", \"error\": \"${error}\"}\n",

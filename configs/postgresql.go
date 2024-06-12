@@ -47,7 +47,7 @@ func ConnectPostgresSQL() *sqlx.DB {
 	if os.Getenv(`PROJECT_ENV`) == `prod` {
 		logFile := &rotateLogs.RotateLogsWriter{
 			Config: rotateLogs.Config{
-				Directory:     PATH_SQL_LOG,
+				Directory:     OS_PATH_SQL_LOG,
 				Filename:      "sql.log",
 				MaxSize:       10,
 				UsingTime:     true,
