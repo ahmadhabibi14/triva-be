@@ -6,9 +6,9 @@ import (
 	"net/http/httptest"
 	"testing"
 	"time"
+	"triva/internal/bootstrap/web"
 	"triva/internal/controller"
 	"triva/internal/service"
-	"triva/internal/web"
 
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"

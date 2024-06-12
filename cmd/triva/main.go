@@ -1,7 +1,7 @@
 package main
 
 import (
-	"triva/internal"
+	"triva/internal/bootstrap"
 )
 
 // @title Triva - API Docs
@@ -20,6 +20,6 @@ import (
 // @BasePath /
 // @schemes http
 func main() {
-  app := internal.NewApp()
+  app := bootstrap.NewApp()
   app.Run()
 }

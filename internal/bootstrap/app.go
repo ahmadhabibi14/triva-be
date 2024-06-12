@@ -1,4 +1,4 @@
-package internal
+package bootstrap
 
 import (
 	"os"
@@ -9,9 +9,9 @@ import (
 	"triva/helper"
 	"triva/internal/bootstrap/database"
 	"triva/internal/bootstrap/logger"
+	"triva/internal/bootstrap/web"
 	"triva/internal/controller"
 	"triva/internal/service"
-	"triva/internal/web"
 
 	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/contrib/websocket"
@@ -48,6 +48,7 @@ func (a *App) Run() {
 
 	if err := a.httpServer.Listen(port); err != nil {
 		logger.Log.Err(err).Msg("shutting down app")
+		os.Exit(1)
 	}
 
 	<-waits
