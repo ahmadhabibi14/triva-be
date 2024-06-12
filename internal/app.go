@@ -1,8 +1,9 @@
 package internal
 
 import (
-	"log"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 	"triva/configs"
 	"triva/helper"
@@ -32,17 +33,24 @@ func NewApp() *App {
 	return &App{}
 }
 
-func (a *App) Init() {
+func (a *App) Run() {
+	waits := make(chan int)
+
 	a.setupEnv()
 	a.setupLogger()
 	a.setupDatabases()
 	a.setupServices()
 	a.setupHTTP()
 	a.apiDocs()
+	go a.shutdown()
 
-	port := ":" + os.Getenv("WEB_PORT")
-	if port == ":" { port = ":3000" }
-	log.Fatal(a.httpServer.Listen(port))
+	port := ":" + os.Getenv("WEB_PORT"); if port == ":" { port = ":3000" }
+
+	if err := a.httpServer.Listen(port); err != nil {
+		logger.Log.Err(err).Msg("shutting down app")
+	}
+
+	<-waits
 }
 
 func (a *App) setupHTTP() {
@@ -122,10 +130,41 @@ func (a *App) setupLogger() {
 
 func (a *App) apiDocs() {
 	a.httpServer.Use(swagger.New(swagger.Config{
-		BasePath: `/`,
-		FilePath: `./docs/swagger.json`,
-		Path: `docs`,
-		Title: `Triva API Documentation`,
+		BasePath: "/",
+		FilePath: "./docs/swagger.json",
+		Path: "docs",
+		Title: "Triva API Documentation",
 		CacheAge: int(time.Minute) * 30,
 	}))
+}
+
+func (a *App) shutdown() {
+	s := make(chan os.Signal, 1)
+	signal.Notify(s, os.Interrupt)
+	signal.Notify(s, syscall.SIGTERM)
+	go func() {
+		<-s
+
+		logger.Log.Info().Msg("shutting down...")
+
+		if err := a.httpServer.Shutdown(); err != nil {
+			logger.Log.Err(err).Msg("failed to shutdown [httpserver]")
+		} else {
+			logger.Log.Info().Msg("cleaned up [httpserver]")
+		}
+
+		if err := a.db.DB.Close(); err != nil {
+			logger.Log.Err(err).Msg("failed to shutdown [postgresql]")
+		} else {
+			logger.Log.Info().Msg("cleaned up [postgresql]")
+		}
+
+		if err := a.db.RD.Close(); err != nil {
+			logger.Log.Err(err).Msg("failed to shutdown [redis]")
+		} else {
+			logger.Log.Info().Msg("cleaned up [redis]")
+		}
+
+		os.Exit(0)
+	}()
 }

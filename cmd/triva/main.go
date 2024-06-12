@@ -21,5 +21,5 @@ import (
 // @schemes http
 func main() {
   app := internal.NewApp()
-  app.Init()
+  app.Run()
 }
