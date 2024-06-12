@@ -1,5 +1,4 @@
 root = "."
-testdata_dir = "testdata"
 tmp_dir = "tmp"
 
 [build]
@@ -7,8 +6,8 @@ tmp_dir = "tmp"
   bin = "./tmp/main"
   cmd = "go build -o ./tmp/main ./cmd/triva/main.go"
   delay = 0
-  exclude_dir = ["assets", "tmp", "vendor", "testdata", "node_modules", "_docker-data", "client"]
-  exclude_file = ["client/**/*.svelte"]
+  exclude_dir = ["assets", "tmp", "vendor", "_docker-data"]
+  exclude_file = []
   exclude_regex = ["_test.go"]
   exclude_unchanged = false
   follow_symlink = false
@@ -40,5 +39,5 @@ tmp_dir = "tmp"
   clean_on_exit = false
 
 [screen]
-  clear_on_rebuild = false
+  clear_on_rebuild = true
   keep_scroll = true
