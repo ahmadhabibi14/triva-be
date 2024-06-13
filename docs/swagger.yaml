@@ -1,5 +1,19 @@
 basePath: /
 definitions:
+  CreateQuizIn:
+    properties:
+      name:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - name
+    type: object
+  CreateQuizOut:
+    properties:
+      quiz:
+        $ref: '#/definitions/Quiz'
+    type: object
   LoginIn:
     properties:
       password:
@@ -14,9 +28,68 @@ definitions:
     type: object
   LoginOut:
     properties:
-      message:
+      session_key:
         type: string
-      session:
+      user:
+        $ref: '#/definitions/User'
+    type: object
+  Quiz:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      questions:
+        items:
+          $ref: '#/definitions/QuizQuestion'
+        type: array
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  QuizChoice:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        type: string
+      is_correct:
+        type: boolean
+      name:
+        type: string
+      question_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  QuizQuestion:
+    properties:
+      choices:
+        items:
+          $ref: '#/definitions/QuizChoice'
+        type: array
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        type: string
+      image_url:
+        type: string
+      is_use_image:
+        type: boolean
+      name:
+        type: string
+      quiz_id:
+        type: string
+      updated_at:
         type: string
     type: object
   RegisterIn:
@@ -40,10 +113,13 @@ definitions:
     type: object
   RegisterOut:
     properties:
-      message:
-        type: string
+      user:
+        $ref: '#/definitions/User'
     type: object
   UpdateAvatarIn:
+    properties:
+      avatar:
+        $ref: '#/definitions/multipart.Form'
     type: object
   UpdateAvatarOut:
     properties:
@@ -67,6 +143,63 @@ definitions:
         type: string
       username:
         type: string
+    type: object
+  User:
+    properties:
+      avatar_url:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      email:
+        type: string
+      facebook_id:
+        type: string
+      full_name:
+        type: string
+      github_id:
+        type: string
+      google_id:
+        type: string
+      id:
+        type: integer
+      password:
+        type: string
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+  multipart.FileHeader:
+    properties:
+      filename:
+        type: string
+      header:
+        $ref: '#/definitions/textproto.MIMEHeader'
+      size:
+        type: integer
+    type: object
+  multipart.Form:
+    properties:
+      file:
+        additionalProperties:
+          items:
+            $ref: '#/definitions/multipart.FileHeader'
+          type: array
+        type: object
+      value:
+        additionalProperties:
+          items:
+            type: string
+          type: array
+        type: object
+    type: object
+  textproto.MIMEHeader:
+    additionalProperties:
+      items:
+        type: string
+      type: array
     type: object
 host: localhost:3000
 info:
@@ -95,7 +228,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Login Out
           schema:
             $ref: '#/definitions/LoginOut'
       summary: Login to authenticated
@@ -114,14 +247,49 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Register Out
           schema:
             $ref: '#/definitions/RegisterOut'
       summary: Regiser to create an account
       tags:
       - Auth
+  /quiz/create-quiz:
+    post:
+      parameters:
+      - description: Create Quiz In
+        in: body
+        name: requestBody
+        required: true
+        schema:
+          $ref: '#/definitions/CreateQuizIn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Create Quiz Out
+          schema:
+            $ref: '#/definitions/CreateQuizOut'
+      summary: Create a quiz
+      tags:
+      - Quiz
+  /quiz/quizzes:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Quizzes Out
+          schema:
+            items:
+              $ref: '#/definitions/Quiz'
+            type: array
+      summary: Get quizzes
+      tags:
+      - Quiz
   /user/updateAvatar:
     post:
+      consumes:
+      - multipart/form-data
       parameters:
       - description: Avatar image
         in: body

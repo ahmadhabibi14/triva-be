@@ -93,6 +93,15 @@ func (a *App) setupHTTP() {
 
 			return quizController.GetQuizzes(c, session)
 		})
+		router.Post(controller.CreateQuizAction, func(c *fiber.Ctx) error {
+			session, err := web.GetSession(a.db, c)
+			if err != nil {
+				response := helper.NewHTTPResponse(err.Error(), nil)
+				return c.Status(fiber.StatusBadRequest).JSON(response)
+			}
+
+			return quizController.CreateQuiz(c, session)
+		})
 	})
 
 	gameController := controller.NewGameController(a.netService)

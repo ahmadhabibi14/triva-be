@@ -1,10 +1,9 @@
 package controller
 
 import (
-	"mime/multipart"
-	"time"
 	"triva/helper"
 	"triva/internal/repository/users"
+	"triva/internal/response"
 	"triva/internal/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -22,24 +21,6 @@ func NewUserController(userService *service.UserService) *UserController {
 	}
 }
 
-type (
-	UpdateAvatarIn struct {
-		Avatar 			multipart.Form 		`json:"avatar" form:"avatar"`
-	} // @name UpdateAvatarIn
-	UpdateAvatarOut struct {
-		Id 					uint64 		`json:"id"`
-		Username 		string 		`json:"username"`
-		FullName 		string 		`json:"full_name"`
-		Email 			string 		`json:"email"`
-		AvatarURL		string 		`json:"avatar_url"`
-		GoogleId 		string 		`json:"google_id"`
-		FacebookId	string 		`json:"facebook_id"`
-		GithubId 		string 		`json:"github_id"`
-		CreatedAt 	time.Time `json:"created_at"`
-		UpdatedAt 	time.Time `json:"updated_at"`
-	} // @name UpdateAvatarOut
-)
-
 const (
 	UpdateAvatarAction = `/update-avatar`
 	UpdateAvatarOkMsg  = `avatar updated`
@@ -47,6 +28,7 @@ const (
 
 // @Summary 			Update avatar
 // @Tags					User
+// @Accept				mpfd
 // @Param 				requestBody  body  UpdateAvatarIn  true  "Avatar image"
 // @Success				200 {object} UpdateAvatarOut
 // @Produce				json
@@ -64,7 +46,7 @@ func (uc *UserController) UpdateAvatar(c *fiber.Ctx, session *users.Session) err
 		return c.Status(fiber.StatusBadRequest).JSON(response)
 	}
 
-	out := UpdateAvatarOut{
+	out := response.UpdateAvatarOut{
 		Id: user.Id,
 		Username: user.Username,
 		FullName: user.FullName,

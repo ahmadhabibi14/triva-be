@@ -1,5 +1,12 @@
 package response
 
+import "triva/internal/repository/users"
+
 type RegisterOut struct {
-	Message string `json:"message" form:"message"`
+	User 		*users.User	`json:"user" form:"user"`
 } // @name RegisterOut
+
+type LoginOut struct {
+	SessionKey 	string 			`json:"session_key" form:"session_key"`
+	User 				*users.User	`json:"user" form:"user"`
+} // @name LoginOut

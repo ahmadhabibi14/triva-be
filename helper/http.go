@@ -18,7 +18,7 @@ func NewHTTPResponse(errors string, data any) HTTPResponse {
 	}
 }
 
-func ReadJSON[T any](c *fiber.Ctx, b []byte) (T, error) {
+func ReadBody[T any](c *fiber.Ctx, b []byte) (T, error) {
 	var body T
 	err := c.BodyParser(&body)
 	if err != nil {

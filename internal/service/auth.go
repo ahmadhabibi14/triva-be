@@ -6,6 +6,8 @@ import (
 	"triva/internal/bootstrap/database"
 	"triva/internal/bootstrap/logger"
 	"triva/internal/repository/users"
+	"triva/internal/request"
+	"triva/internal/response"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -18,42 +20,53 @@ func NewAuthService(Db *database.Database) *AuthService {
 	return &AuthService{Db: Db}
 }
 
-func (as *AuthService) Login(username, password string) (sessionKey string, err error) {
+func (as *AuthService) Login(in request.LoginIn) (out response.LoginOut, err error) {
 	user := users.NewUserMutator(as.Db)
-	user.Username = username
-	if err = user.FindUsernamePassword(); err != nil {
+	user.Username = in.Username
+	if err = user.FindByUsername(); err != nil {
 		return
 	}
 
-	if passwordMatch := helper.VerifyPassword(password, user.Password); passwordMatch != nil {
+	if passwordMatch := helper.VerifyPassword(in.Password, user.Password); passwordMatch != nil {
 		errMsg := errors.New(`password does not match`)
 		logger.Log.Err(passwordMatch).Msg(errMsg.Error())
 		err = errMsg
 		return
 	}
 
-	sessionKey = helper.RandString(35)
+	out.SessionKey = helper.RandString(35)
+
+	user.HideSecrets()
+	out.User = user
 
 	session := users.NewSessionMutator(as.Db)
-	err = session.SetSession(sessionKey, user.Id, user.Username)
+	err = session.SetSession(out.SessionKey, user.Id, user.Username)
 
 	return
 }
 
-func (as *AuthService) Register(username, fullName, email, password string) error {
+func (as *AuthService) Register(in request.RegisterIn) (out response.RegisterOut, err error) {
 	user := users.NewUserMutator(as.Db)
-	user.Username = username
-	user.FullName = fullName
-	user.Email = email
+	user.Username = in.Username
+	user.FullName = in.FullName
+	user.Email = in.Email
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		errMsg := errors.New(`failed to set password`)
-		logger.Log.Err(err).Msg(errMsg.Error())
-		return errMsg
+	hashedPassword, errGen := bcrypt.GenerateFromPassword([]byte(in.Password), bcrypt.DefaultCost)
+	if errGen != nil {
+		err = errors.New(`failed to set password`)
+		logger.Log.Err(errGen).Msg(err.Error())
+		return
 	}
 
 	user.Password = string(hashedPassword)
 
-	return user.CreateUser()
+	err = user.CreateUser()
+	if err != nil {
+		return
+	}
+
+	user.HideSecrets()
+	out.User = user
+
+	return
 }

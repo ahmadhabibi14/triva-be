@@ -21,7 +21,7 @@ type QuizQuestion struct {
 	DeletedAt 	time.Time `db:"deleted_at" json:"deleted_at"`
 
 	Choices []QuizChoice `db:"-" json:"choices"`
-}
+} // @name QuizQuestion
 
 func NewQuizQuestionMutator(Db *database.Database) *QuizQuestion {
 	return &QuizQuestion{Db: Db}

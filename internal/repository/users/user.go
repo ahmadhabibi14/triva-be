@@ -13,27 +13,31 @@ const TABLE_USER = `users`
 type User struct {
 	Db *database.Database `db:"-" json:"-"`
 
-	Id 					uint64 		`db:"id" json:"id"`
-	Username 		string 		`db:"username" json:"username"`
-	FullName 		string 		`db:"full_name" json:"full_name"`
-	Email 			string 		`db:"email" json:"email"`
-	Password 		string 		`db:"password" json:"password"`
-	AvatarURL		string 		`db:"avatar_url" json:"avatar_url"`
-	GoogleId 		string 		`db:"google_id" json:"google_id"`
-	FacebookId	string 		`db:"facebook_id" json:"facebook_id"`
-	GithubId 		string 		`db:"github_id" json:"github_id"`
-	CreatedAt 	time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt 	time.Time `db:"updated_at" json:"updated_at"`
-	DeletedAt 	time.Time `db:"deleted_at" json:"deleted_at"`
-}
+	Id 					uint64 		`db:"id" json:"id,omitempty"`
+	Username 		string 		`db:"username" json:"username,omitempty"`
+	FullName 		string 		`db:"full_name" json:"full_name,omitempty"`
+	Email 			string 		`db:"email" json:"email,omitempty"`
+	Password 		string 		`db:"password" json:"password,omitempty"`
+	AvatarURL		string 		`db:"avatar_url" json:"avatar_url,omitempty"`
+	GoogleId 		string 		`db:"google_id" json:"google_id,omitempty"`
+	FacebookId	string 		`db:"facebook_id" json:"facebook_id,omitempty"`
+	GithubId 		string 		`db:"github_id" json:"github_id,omitempty"`
+	CreatedAt 	time.Time `db:"created_at" json:"created_at,omitempty"`
+	UpdatedAt 	time.Time `db:"updated_at" json:"updated_at,omitempty"`
+	DeletedAt 	time.Time `db:"deleted_at" json:"deleted_at,omitempty"`
+} // @name User
 
 func NewUserMutator(Db *database.Database) *User {
 	return &User{Db: Db}
 }
 
+func (u *User) HideSecrets() {
+	u.Password = ``
+}
+
 func (u *User) CreateUser() error {
 	query := `INSERT INTO ` + TABLE_USER +` (username, full_name, email, password, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5, $6) RETURNING username`
+VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, username, full_name, email, avatar_url, created_at, updated_at`
 	
 	if err := u.Db.DB.QueryRowx(query,
 		u.Username, u.FullName, u.Email, u.Password, time.Now(), time.Now(),
@@ -48,8 +52,9 @@ VALUES ($1, $2, $3, $4, $5, $6) RETURNING username`
 	return nil
 }
 
-func (u *User) FindUsernamePassword() error {
-	query := `SELECT username, password, id FROM ` + TABLE_USER + ` WHERE username = $1 LIMIT 1`
+func (u *User) FindByUsername() error {
+	query := `SELECT id, username, full_name, password, email, avatar_url, created_at, updated_at
+FROM ` + TABLE_USER + ` WHERE username = $1 LIMIT 1`
 	err := u.Db.DB.Get(u, query, u.Username)
 	if err != nil {
 		return errors.New(`username not found`)

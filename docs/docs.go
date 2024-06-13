@@ -46,7 +46,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Login Out",
                         "schema": {
                             "$ref": "#/definitions/LoginOut"
                         }
@@ -76,7 +76,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Register Out",
                         "schema": {
                             "$ref": "#/definitions/RegisterOut"
                         }
@@ -84,8 +84,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/quiz/create-quiz": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Quiz"
+                ],
+                "summary": "Create a quiz",
+                "parameters": [
+                    {
+                        "description": "Create Quiz In",
+                        "name": "requestBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateQuizIn"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Create Quiz Out",
+                        "schema": {
+                            "$ref": "#/definitions/CreateQuizOut"
+                        }
+                    }
+                }
+            }
+        },
+        "/quiz/quizzes": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Quiz"
+                ],
+                "summary": "Get quizzes",
+                "responses": {
+                    "200": {
+                        "description": "Quizzes Out",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Quiz"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/user/updateAvatar": {
             "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -116,6 +171,28 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "CreateQuizIn": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "CreateQuizOut": {
+            "type": "object",
+            "properties": {
+                "quiz": {
+                    "$ref": "#/definitions/Quiz"
+                }
+            }
+        },
         "LoginIn": {
             "type": "object",
             "required": [
@@ -136,10 +213,100 @@ const docTemplate = `{
         "LoginOut": {
             "type": "object",
             "properties": {
-                "message": {
+                "session_key": {
                     "type": "string"
                 },
-                "session": {
+                "user": {
+                    "$ref": "#/definitions/User"
+                }
+            }
+        },
+        "Quiz": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "questions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/QuizQuestion"
+                    }
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "QuizChoice": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_correct": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "question_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "QuizQuestion": {
+            "type": "object",
+            "properties": {
+                "choices": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/QuizChoice"
+                    }
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "is_use_image": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "quiz_id": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }
@@ -173,13 +340,18 @@ const docTemplate = `{
         "RegisterOut": {
             "type": "object",
             "properties": {
-                "message": {
-                    "type": "string"
+                "user": {
+                    "$ref": "#/definitions/User"
                 }
             }
         },
         "UpdateAvatarIn": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "$ref": "#/definitions/multipart.Form"
+                }
+            }
         },
         "UpdateAvatarOut": {
             "type": "object",
@@ -212,6 +384,93 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "User": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "facebook_id": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "github_id": {
+                    "type": "string"
+                },
+                "google_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "multipart.FileHeader": {
+            "type": "object",
+            "properties": {
+                "filename": {
+                    "type": "string"
+                },
+                "header": {
+                    "$ref": "#/definitions/textproto.MIMEHeader"
+                },
+                "size": {
+                    "type": "integer"
+                }
+            }
+        },
+        "multipart.Form": {
+            "type": "object",
+            "properties": {
+                "file": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/multipart.FileHeader"
+                        }
+                    }
+                },
+                "value": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "textproto.MIMEHeader": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "array",
+                "items": {
                     "type": "string"
                 }
             }

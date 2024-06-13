@@ -8,6 +8,7 @@ import (
 	"time"
 	"triva/internal/bootstrap/web"
 	"triva/internal/controller"
+	"triva/internal/request"
 	"triva/internal/service"
 
 	"github.com/goccy/go-json"
@@ -36,7 +37,7 @@ func TestAuth(t *testing.T) {
 	timeOut := 10 * time.Second
 
 	t.Run(`authLogin`, func(t *testing.T) {
-		payload := controller.LoginIn{
+		payload := request.LoginIn{
 			Username: "habibi",
 			Password: "habibi12345678",
 		}
