@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	sessionKey	= `thiskey`
-	userId			= `user-id-uuid-valid`
-	username		= `johndoe998` 
+	sessionKey	string = `thiskey`
+	userId			uint64 = 2
+	username		string = `johndoe998` 
 )
 
 func TestSetSession(t *testing.T) {

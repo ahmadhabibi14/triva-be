@@ -179,12 +179,7 @@ const docTemplate = `{
             }
         },
         "UpdateAvatarIn": {
-            "type": "object",
-            "properties": {
-                "avatar": {
-                    "type": "string"
-                }
-            }
+            "type": "object"
         },
         "UpdateAvatarOut": {
             "type": "object",
@@ -211,7 +206,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "updated_at": {
                     "type": "string"

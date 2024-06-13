@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"mime/multipart"
 	"time"
 	"triva/helper"
 	"triva/internal/repository/users"
@@ -23,10 +24,10 @@ func NewUserController(userService *service.UserService) *UserController {
 
 type (
 	UpdateAvatarIn struct {
-		Avatar 			string 		`json:"avatar" form:"avatar"`
+		Avatar 			multipart.Form 		`json:"avatar" form:"avatar"`
 	} // @name UpdateAvatarIn
 	UpdateAvatarOut struct {
-		Id 					string 		`json:"id"`
+		Id 					uint64 		`json:"id"`
 		Username 		string 		`json:"username"`
 		FullName 		string 		`json:"full_name"`
 		Email 			string 		`json:"email"`

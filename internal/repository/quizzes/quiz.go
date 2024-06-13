@@ -2,20 +2,21 @@ package quizzes
 
 import (
 	"errors"
-	"strings"
 	"time"
-	"triva/helper"
 	"triva/internal/bootstrap/database"
+
+	"github.com/kokizzu/gotro/I"
+	"github.com/kokizzu/gotro/S"
 )
 
-const TABLE_Quiz string = `Quiz` 
+const TABLE_Quiz string = `quiz` 
 
 type Quiz struct {
 	Db *database.Database `db:"-" json:"-"`
 
-	Id 				string 					`db:"id" json:"id"`
+	Id 				uint64 					`db:"id" json:"id"`
 	Name 			string 					`db:"name" json:"name"`
-	UserId 		string 					`db:"user_id" json:"user_id"`
+	UserId 		uint64					`db:"user_id" json:"user_id"`
 	CreatedAt time.Time 			`db:"created_at" json:"created_at"`
 	UpdatedAt time.Time 			`db:"updated_at" json:"updated_at"`
 	DeletedAt time.Time 			`db:"deleted_at" json:"deleted_at"`
@@ -29,7 +30,7 @@ func NewQuizMutator(Db *database.Database) *Quiz {
 func (q *Quiz) GetQuizzes() (quizzes []Quiz, err error) {
 	query := `SELECT
 		COALESCE(id, '') id, COALESCE(name, '') name
-		FROM ` + TABLE_Quiz + ` WHERE userId = ` + q.UserId + `
+		FROM ` + TABLE_Quiz + ` WHERE userId = ` +  I.UToS(q.UserId) + `
 		ORDER BY name DESC`
 	
 	err = q.Db.DB.Select(&quizzes, query)
@@ -42,7 +43,7 @@ func (q *Quiz) GetQuizzes() (quizzes []Quiz, err error) {
 
 func (q *Quiz) FindById(id string) error {
 	query := `SELECT * FROM ` + TABLE_Quiz + ` WHERE id = $1 LIMIT 1`
-	err := q.Db.DB.Get(q, query, strings.TrimSpace(id))
+	err := q.Db.DB.Get(q, query, S.Trim(id))
 	if err != nil {
 		return errors.New(`quiz not found`)
 	}
@@ -52,12 +53,12 @@ func (q *Quiz) FindById(id string) error {
 
 func (q *Quiz) Insert() error {
 	query := `INSERT INTO ` + TABLE_Quiz + `
-(id, name, user_id, created_at) VALUES ($1, $2, $3, $4, $5)
+(name, user_id, created_at, updated_at) VALUES ($1, $2, $3, $4)
 ON CONFLICT (user_id) DO NOTHING
 RETURNING id, name, user_id, created_at, updated_at`
 
 	if err := q.Db.DB.QueryRowx(query,
-		helper.RandString(35), q.Name, q.UserId, time.Now(),
+		q.Name, q.UserId, time.Now(),
 	).StructScan(q); err != nil {
 		return errors.New(`failed to insert a new quiz`)
 	}

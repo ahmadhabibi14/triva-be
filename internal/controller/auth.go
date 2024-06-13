@@ -5,6 +5,8 @@ import (
 	"time"
 	"triva/configs"
 	"triva/helper"
+	"triva/internal/request"
+	"triva/internal/response"
 	"triva/internal/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -64,18 +66,6 @@ func (ac *AuthController) Login(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(response)
 }
 
-type (
-	RegisterIn struct {
-		Username string `json:"username" form:"username" validate:"required,omitempty,min=5"`
-		FullName string `json:"full_name" form:"full_name" validate:"required,omitempty,min=5"`
-		Email    string `json:"email" form:"email" validate:"required,email"`
-		Password string `json:"password" form:"password" validate:"required,min=8"`
-	} // @name RegisterIn
-	RegisterOut struct {
-		Message string `json:"message" form:"message"`
-	} // @name RegisterOut
-)
-
 const (
 	RegisterAction = `/register`
 	RegisterOkMsg  = `user created !`
@@ -83,12 +73,12 @@ const (
 
 // @Summary 			Regiser to create an account
 // @Tags					Auth
-// @Param 				requestBody  body  RegisterIn  true  "User data"
-// @Success				200 {object} RegisterOut
+// @Param 				requestBody  body  request.RegisterIn  true  "User data"
+// @Success				200 {object} response.RegisterOut
 // @Produce				json
 // @Router				/auth/register [post]
 func (ac *AuthController) Register(c *fiber.Ctx) error {
-	in, err := helper.ReadJSON[RegisterIn](c, c.Body())
+	in, err := helper.ReadJSON[request.RegisterIn](c, c.Body())
 	if err != nil {
 		response := helper.NewHTTPResponse(err.Error(), nil)
 		return c.Status(fiber.StatusBadRequest).JSON(response)
@@ -103,7 +93,7 @@ func (ac *AuthController) Register(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(response)
 	}
 
-	out := RegisterOut{Message: RegisterOkMsg}
+	out := response.RegisterOut{Message: RegisterOkMsg}
 	response := helper.NewHTTPResponse(``, out)
 	return c.Status(fiber.StatusCreated).JSON(response)
 }

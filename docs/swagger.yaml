@@ -44,9 +44,6 @@ definitions:
         type: string
     type: object
   UpdateAvatarIn:
-    properties:
-      avatar:
-        type: string
     type: object
   UpdateAvatarOut:
     properties:
@@ -65,7 +62,7 @@ definitions:
       google_id:
         type: string
       id:
-        type: string
+        type: integer
       updated_at:
         type: string
       username:

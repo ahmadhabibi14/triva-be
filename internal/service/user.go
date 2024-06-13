@@ -29,7 +29,7 @@ func NewUserService(Db *database.Database) *UserService {
 	return &UserService{Db: Db}
 }
 
-func (us *UserService) UpdateAvatar(img *multipart.FileHeader, userId string) (user *users.User, err error) {
+func (us *UserService) UpdateAvatar(img *multipart.FileHeader, userId uint64) (user *users.User, err error) {
 	buff := make([]byte, 512)
 	reader, err := img.Open()
 	if err != nil {

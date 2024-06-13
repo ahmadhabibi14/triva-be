@@ -16,7 +16,7 @@ const (
 
 type Session struct {
 	Db						*database.Database `json:"-"` 
-	UserID        string				`json:"user_id"`
+	UserID        uint64				`json:"user_id"`
 	Username      string				`json:"username"`
 }
 
@@ -24,7 +24,7 @@ func NewSessionMutator(Db *database.Database) *Session {
 	return &Session{Db: Db}
 }
 
-func (s *Session) SetSession(sessionKey, userId, username string) error {
+func (s *Session) SetSession(sessionKey string, userId uint64, username string) error {
 	s.UserID = userId
 	s.Username = username
 

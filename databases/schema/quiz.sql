@@ -1,0 +1,29 @@
+CREATE TABLE quiz (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  user_id SERIAL REFERENCES users(id),
+  created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+  deleted_at TIMESTAMP WITHOUT TIME ZONE
+);
+
+CREATE TABLE quiz_question (
+  id SERIAL PRIMARY KEY,
+  quiz_id SERIAL REFERENCES quiz(id),
+  name VARCHAR(255) NOT NULL,
+  is_use_image BOOLEAN,
+  image_url VARCHAR(255) DEFAULT '',
+  created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+  deleted_at TIMESTAMP WITHOUT TIME ZONE
+);
+
+CREATE TABLE quiz_choice (
+  id SERIAL PRIMARY KEY,
+  question_id SERIAL REFERENCES quiz_question(id),
+  name VARCHAR(255) NOT NULL,
+  is_correct BOOLEAN,
+  created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+  deleted_at TIMESTAMP WITHOUT TIME ZONE
+);

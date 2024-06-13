@@ -1,5 +1,5 @@
-CREATE TABLE Users (
-  id VARCHAR(36) PRIMARY KEY,
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
   username VARCHAR(100) UNIQUE NOT NULL,
   full_name VARCHAR(255) NOT NULL,
   email VARCHAR(100) UNIQUE,
@@ -13,18 +13,18 @@ CREATE TABLE Users (
   deleted_at TIMESTAMP WITHOUT TIME ZONE
 );
 
-CREATE TABLE Quiz (
-  id VARCHAR(36) PRIMARY KEY,
+CREATE TABLE quiz (
+  id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
-  user_id VARCHAR(36) REFERENCES Users(id),
+  user_id SERIAL REFERENCES users(id),
   created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
   updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
   deleted_at TIMESTAMP WITHOUT TIME ZONE
 );
 
-CREATE TABLE QuizQuestion (
-  id VARCHAR(36) PRIMARY KEY,
-  quiz_id VARCHAR(36) REFERENCES Quiz(id),
+CREATE TABLE quiz_question (
+  id SERIAL PRIMARY KEY,
+  quiz_id SERIAL REFERENCES quiz(id),
   name VARCHAR(255) NOT NULL,
   is_use_image BOOLEAN,
   image_url VARCHAR(255) DEFAULT '',
@@ -33,9 +33,9 @@ CREATE TABLE QuizQuestion (
   deleted_at TIMESTAMP WITHOUT TIME ZONE
 );
 
-CREATE TABLE QuizChoice (
-  id VARCHAR(36) PRIMARY KEY,
-  question_id VARCHAR(36) REFERENCES QuizQuestion(id),
+CREATE TABLE quiz_choice (
+  id SERIAL PRIMARY KEY,
+  question_id SERIAL REFERENCES quiz_question(id),
   name VARCHAR(255) NOT NULL,
   is_correct BOOLEAN,
   created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),

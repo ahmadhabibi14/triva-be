@@ -176,12 +176,7 @@
             }
         },
         "UpdateAvatarIn": {
-            "type": "object",
-            "properties": {
-                "avatar": {
-                    "type": "string"
-                }
-            }
+            "type": "object"
         },
         "UpdateAvatarOut": {
             "type": "object",
@@ -208,7 +203,7 @@
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "updated_at": {
                     "type": "string"

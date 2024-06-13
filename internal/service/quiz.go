@@ -17,3 +17,4 @@ func (s *QuizService) GetQuizzes() ([]quizzes.Quiz, error) {
 	quiz := quizzes.NewQuizMutator(s.Db)
 	return quiz.GetQuizzes()
 }
+

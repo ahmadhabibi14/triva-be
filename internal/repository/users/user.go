@@ -5,7 +5,6 @@ import (
 	"time"
 	"triva/internal/bootstrap/database"
 
-	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
 
@@ -14,7 +13,7 @@ const TABLE_USER = `users`
 type User struct {
 	Db *database.Database `db:"-" json:"-"`
 
-	Id 					string 		`db:"id" json:"id"`
+	Id 					uint64 		`db:"id" json:"id"`
 	Username 		string 		`db:"username" json:"username"`
 	FullName 		string 		`db:"full_name" json:"full_name"`
 	Email 			string 		`db:"email" json:"email"`
@@ -33,13 +32,11 @@ func NewUserMutator(Db *database.Database) *User {
 }
 
 func (u *User) CreateUser() error {
-	query := `INSERT INTO ` + TABLE_USER +` (id, username, full_name, email, password, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING username`
+	query := `INSERT INTO ` + TABLE_USER +` (username, full_name, email, password, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6) RETURNING username`
 	
-	uid := uuid.New().String()
 	if err := u.Db.DB.QueryRowx(query,
-		uid, u.Username, u.FullName, u.Email, u.Password,
-		time.Now(), time.Now(),
+		u.Username, u.FullName, u.Email, u.Password, time.Now(), time.Now(),
 	).StructScan(u); err != nil {
 		pgErr, ok := err.(*pq.Error)
 		if ok && pgErr.Code == `23505` {
@@ -63,8 +60,7 @@ func (u *User) FindUsernamePassword() error {
 
 func (u *User) UpdateAvatarById() error {
 	query := `UPDATE ` + TABLE_USER + `
-SET avatar_url = $1,
-	updated_at = $2
+SET avatar_url = $1, updated_at = $2
 WHERE id = $3
 RETURNING id, username, full_name, email, avatar_url,
 	google_id, facebook_id, github_id, created_at, updated_at`
