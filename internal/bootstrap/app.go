@@ -47,7 +47,8 @@ func (a *App) Run() {
 	port := ":" + os.Getenv("WEB_PORT"); if port == ":" { port = ":3000" }
 
 	if err := a.httpServer.Listen(port); err != nil {
-		logger.Log.Err(err).Msg("shutting down app")
+		logger.Log.Err(err).Msg("failed to start http server")
+		a.closeServices()
 		os.Exit(1)
 	}
 
@@ -150,25 +151,28 @@ func (a *App) shutdown() {
 		<-s
 
 		logger.Log.Info().Msg("shutting down...")
-
-		if err := a.httpServer.Shutdown(); err != nil {
-			logger.Log.Err(err).Msg("failed to shutdown [httpserver]")
-		} else {
-			logger.Log.Info().Msg("cleaned up [httpserver]")
-		}
-
-		if err := a.db.DB.Close(); err != nil {
-			logger.Log.Err(err).Msg("failed to shutdown [postgresql]")
-		} else {
-			logger.Log.Info().Msg("cleaned up [postgresql]")
-		}
-
-		if err := a.db.RD.Close(); err != nil {
-			logger.Log.Err(err).Msg("failed to shutdown [redis]")
-		} else {
-			logger.Log.Info().Msg("cleaned up [redis]")
-		}
+		a.closeServices()
 
 		os.Exit(0)
 	}()
+}
+
+func (a *App) closeServices() {
+	if err := a.httpServer.Shutdown(); err != nil {
+		logger.Log.Err(err).Msg("failed to shutdown [httpserver]")
+	} else {
+		logger.Log.Info().Msg("cleaned up [httpserver]")
+	}
+
+	if err := a.db.DB.Close(); err != nil {
+		logger.Log.Err(err).Msg("failed to shutdown [postgresql]")
+	} else {
+		logger.Log.Info().Msg("cleaned up [postgresql]")
+	}
+
+	if err := a.db.RD.Close(); err != nil {
+		logger.Log.Err(err).Msg("failed to shutdown [redis]")
+	} else {
+		logger.Log.Info().Msg("cleaned up [redis]")
+	}
 }
