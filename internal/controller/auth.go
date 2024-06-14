@@ -33,7 +33,7 @@ const LoginAction = `/login`
 // @Produce				json
 // @Router				/auth/login [post]
 func (ac *AuthController) Login(c *fiber.Ctx) error {
-	loginIn, err := helper.ReadBody[request.LoginIn](c, c.Body())
+	loginIn, err := helper.ReadBody[request.LoginIn](c)
 	if err != nil {
 		response := helper.NewHTTPResponse(err.Error(), nil)
 		return c.Status(fiber.StatusBadRequest).JSON(response)
@@ -60,7 +60,7 @@ const RegisterAction = `/register`
 // @Produce				json
 // @Router				/auth/register [post]
 func (ac *AuthController) Register(c *fiber.Ctx) error {
-	registerIn, err := helper.ReadBody[request.RegisterIn](c, c.Body())
+	registerIn, err := helper.ReadBody[request.RegisterIn](c)
 	if err != nil {
 		response := helper.NewHTTPResponse(err.Error(), nil)
 		return c.Status(fiber.StatusBadRequest).JSON(response)

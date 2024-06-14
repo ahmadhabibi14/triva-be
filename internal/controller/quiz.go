@@ -50,7 +50,7 @@ const CreateQuizAction = `/create-quiz`
 // @Produce				json
 // @Router				/quiz/create-quiz [post]
 func (qc *QuizController) CreateQuiz(c *fiber.Ctx, session *users.Session) error {
-	createQuizIn, err := helper.ReadBody[request.CreateQuizIn](c, c.Body())
+	createQuizIn, err := helper.ReadBody[request.CreateQuizIn](c)
 	if err != nil {
 		response := helper.NewHTTPResponse(err.Error(), nil)
 		return c.Status(fiber.StatusBadRequest).JSON(response)

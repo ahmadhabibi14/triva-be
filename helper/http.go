@@ -18,17 +18,17 @@ func NewHTTPResponse(errors string, data any) HTTPResponse {
 	}
 }
 
-func ReadBody[T any](c *fiber.Ctx, b []byte) (T, error) {
-	var body T
-	err := c.BodyParser(&body)
+func ReadBody[T any](c *fiber.Ctx) (out T, err error) {
+	err = c.BodyParser(&out)
 	if err != nil {
-		return body, errors.New(`invalid payload, please check your request and try again`)
+		err = errors.New(`invalid payload, please check your request and try again`)
+		return
 	}
 
-	err = ValidateStruct(body)
+	err = ValidateStruct(out)
 	if err != nil {
-		return body, err
+		return
 	}
 
-	return body, nil
+	return
 }
