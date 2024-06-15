@@ -84,6 +84,36 @@ const docTemplate = `{
                 }
             }
         },
+        "/quiz/create-question-choices": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Quiz"
+                ],
+                "summary": "Create a quiz",
+                "parameters": [
+                    {
+                        "description": "Create Question and Choices In",
+                        "name": "requestBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateQuestionAndChoicesIn"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Create Question and Choices Out",
+                        "schema": {
+                            "$ref": "#/definitions/CreateQuestionAndChoicesOut"
+                        }
+                    }
+                }
+            }
+        },
         "/quiz/create-quiz": {
             "post": {
                 "produces": [
@@ -171,6 +201,36 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "CreateQuestionAndChoicesIn": {
+            "type": "object",
+            "required": [
+                "choices",
+                "question",
+                "quiz_id"
+            ],
+            "properties": {
+                "choices": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/triva_internal_request.quizChoice"
+                    }
+                },
+                "question": {
+                    "type": "integer"
+                },
+                "quiz_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "CreateQuestionAndChoicesOut": {
+            "type": "object",
+            "properties": {
+                "quiz": {
+                    "$ref": "#/definitions/Quiz"
+                }
+            }
+        },
         "CreateQuizIn": {
             "type": "object",
             "required": [
@@ -471,6 +531,21 @@ const docTemplate = `{
             "additionalProperties": {
                 "type": "array",
                 "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "triva_internal_request.quizChoice": {
+            "type": "object",
+            "required": [
+                "is_correct",
+                "name"
+            ],
+            "properties": {
+                "is_correct": {
+                    "type": "boolean"
+                },
+                "name": {
                     "type": "string"
                 }
             }

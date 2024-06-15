@@ -69,3 +69,13 @@ func (qc *QuizController) CreateQuiz(c *fiber.Ctx, session *users.Session) error
 	response := helper.NewHTTPResponse(``, createQuizOut)
 	return c.Status(fiber.StatusOK).JSON(response)
 }
+
+// @Summary 			Create a quiz
+// @Tags					Quiz
+// @Param 				requestBody  body  request.CreateQuestionAndChoicesIn  true  "Create Question and Choices In"
+// @Success				200 {object} response.CreateQuestionAndChoicesOut "Create Question and Choices Out"
+// @Produce				json
+// @Router				/quiz/create-question-choices [post]
+func (qc *QuizController) CreateQuestionAndChoices(c *fiber.Ctx, session *users.Session) error {
+	return c.SendString(`onProgress`)
+}

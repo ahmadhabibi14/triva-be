@@ -1,5 +1,25 @@
 basePath: /
 definitions:
+  CreateQuestionAndChoicesIn:
+    properties:
+      choices:
+        items:
+          $ref: '#/definitions/triva_internal_request.quizChoice'
+        type: array
+      question:
+        type: integer
+      quiz_id:
+        type: integer
+    required:
+    - choices
+    - question
+    - quiz_id
+    type: object
+  CreateQuestionAndChoicesOut:
+    properties:
+      quiz:
+        $ref: '#/definitions/Quiz'
+    type: object
   CreateQuizIn:
     properties:
       name:
@@ -201,6 +221,16 @@ definitions:
         type: string
       type: array
     type: object
+  triva_internal_request.quizChoice:
+    properties:
+      is_correct:
+        type: boolean
+      name:
+        type: string
+    required:
+    - is_correct
+    - name
+    type: object
 host: localhost:3000
 info:
   contact:
@@ -253,6 +283,25 @@ paths:
       summary: Regiser to create an account
       tags:
       - Auth
+  /quiz/create-question-choices:
+    post:
+      parameters:
+      - description: Create Question and Choices In
+        in: body
+        name: requestBody
+        required: true
+        schema:
+          $ref: '#/definitions/CreateQuestionAndChoicesIn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Create Question and Choices Out
+          schema:
+            $ref: '#/definitions/CreateQuestionAndChoicesOut'
+      summary: Create a quiz
+      tags:
+      - Quiz
   /quiz/create-quiz:
     post:
       parameters:
