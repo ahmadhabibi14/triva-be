@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"net/http"
 	"triva/internal/bootstrap/database"
 	"triva/internal/bootstrap/logger"
 	"triva/internal/repository/quizzes"
@@ -56,9 +55,7 @@ type (
 		Player Player `json:"player"`
 	}
 
-	StartGamePacket struct {
-
-	}
+	StartGamePacket struct {}
 
 	TickPacket struct {
 		Tick int `json:"tick"`
@@ -78,7 +75,6 @@ type (
 
 	ErrorPacket struct {
 		Code int `json:"code"`
-		Status string `json:"status"`
 		Error string `json:"error"`
 	}
 )
@@ -218,7 +214,6 @@ func (ns *NetService) OnIncomingMessage(conn *websocket.Conn, mt int, msg []byte
 					Msg(`game not found`)
 				ns.SendPacket(conn, ErrorPacket{
 					Code: fiber.StatusBadRequest,
-					Status: http.StatusText(fiber.StatusBadRequest),
 					Error: `game not found`,
 				})
 				return
@@ -232,12 +227,18 @@ func (ns *NetService) OnIncomingMessage(conn *websocket.Conn, mt int, msg []byte
 			quiz := quizzes.NewQuizMutator(ns.db)
 			err := quiz.FindById(data.QuizId)
 			if err != nil {
-				log.Println(`(ns *NetService) OnIncomingMessage()`, err)
+				errMsg := `could not found quiz with id: '`+data.QuizId+`'`
+				logger.Log.Err(err).Msg(errMsg)
+				ns.SendPacket(conn, ErrorPacket{
+					Code: fiber.StatusBadRequest,
+					Error: errMsg,
+				})
+				
 				return
 			}
 
 			game := NewGameService(*quiz, conn, ns)
-			log.Println(`new game:`, game.Code)
+			logger.Log.Info().Msg(`host a game with code`+game.Code)
 			ns.games = append(ns.games, game)
 
 			ns.SendPacket(conn, ChangeGameStatePacket{
@@ -249,6 +250,12 @@ func (ns *NetService) OnIncomingMessage(conn *websocket.Conn, mt int, msg []byte
 		{
 			game := ns.getGameByHost(conn)
 			if game == nil {
+				errMsg := `game not found`
+				logger.Log.Error().Msg(errMsg)
+				ns.SendPacket(conn, ErrorPacket{
+					Code: fiber.StatusBadRequest,
+					Error: errMsg,
+				})
 				return
 			}
 
@@ -259,6 +266,12 @@ func (ns *NetService) OnIncomingMessage(conn *websocket.Conn, mt int, msg []byte
 		{
 			game, player := ns.getGameByPlayer(conn)
 			if game == nil {
+				errMsg := `game not found for player [`+player.Id+`] `+player.Name
+				logger.Log.Error().Msg(errMsg)
+				ns.SendPacket(conn, ErrorPacket{
+					Code: fiber.StatusBadRequest,
+					Error: errMsg,
+				})
 				return
 			}
 
