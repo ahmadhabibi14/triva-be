@@ -41,7 +41,7 @@ type (
 	}
 
 	HostGamePacket struct {
-		QuizId string `json:"quizId"`
+		QuizId uint64 `json:"quizId"`
 	}
 
 	QuestionShowPacket struct {

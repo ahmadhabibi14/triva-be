@@ -69,3 +69,59 @@ func (qc *QuizController) CreateQuiz(c *fiber.Ctx, session *users.Session) error
 	response := helper.NewHTTPResponse(``, createQuizOut)
 	return c.Status(fiber.StatusOK).JSON(response)
 }
+
+const CreateQuestionAction = `/create-question`
+
+// @Summary 			Create question with quiz id
+// @Tags				Quiz
+// @Param 				requestBody  body  request.CreateQuestionIn  true  "Create Question In"
+// @Success				200 {object} response.CreateQuestionOut "Create Question Out"
+// @Produce				json
+// @Router				/quiz/create-question [post]
+func (qc *QuizController) CreateQuestion(c *fiber.Ctx, session *users.Session) error {
+	createQuesitonIn, err := helper.ReadBody[request.CreateQuestionIn](c, c.Body())
+	if err != nil {
+		response := helper.NewHTTPResponse(err.Error(), nil)
+		return c.Status(fiber.StatusBadRequest).JSON(response)
+	}
+
+    //BUG: Check if the quiz id belongs to the user
+	// start a transaction before creating a question
+
+	createQuestionOut, err := qc.quizService.CreateQuestion(createQuesitonIn)
+	if err != nil {
+		response := helper.NewHTTPResponse(err.Error(), nil)
+		return c.Status(fiber.StatusBadRequest).JSON(response)
+	}
+
+	response := helper.NewHTTPResponse(``, createQuestionOut)
+	return c.Status(fiber.StatusOK).JSON(response)
+}
+
+const GetQuestionAction = `/questions`
+// @Summary 			Create question with quiz id
+// @Tags				Quiz
+// @Param 				requestBody  body  request.CreateQuestionIn  true  "Create Question In"
+// @Success				200 {object} response.CreateQuestionOut "Create Question Out"
+// @Produce				json
+// @Router				/quiz/create-question [post]
+func (qc *QuizController) GetQuestions(c *fiber.Ctx, session *users.Session) error {
+    //BUG: add a check to see if the quiz belongs to the user
+
+    qid := c.QueryInt("quiz_id", -1)
+
+	if qid == -1 {
+		response := helper.NewHTTPResponse("no quiz_id found", nil)
+		return c.Status(fiber.StatusBadRequest).JSON(response)
+	}
+
+	questions, err := qc.quizService.GetQuestions(qid)
+	if err != nil {
+		response := helper.NewHTTPResponse(err.Error(), nil)
+		return c.Status(fiber.StatusBadRequest).JSON(response)
+	}
+
+	response := helper.NewHTTPResponse(``, questions)
+	return c.Status(fiber.StatusOK).JSON(response)
+}
+

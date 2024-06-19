@@ -6,21 +6,21 @@ import (
 	"triva/internal/bootstrap/database"
 
 	"github.com/kokizzu/gotro/I"
-	"github.com/kokizzu/gotro/S"
+	// "github.com/kokizzu/gotro/S"
 )
 
-const TABLE_Quiz string = `quiz` 
+const TABLE_Quiz string = `quiz`
 
 type Quiz struct {
 	Db *database.Database `db:"-" json:"-"`
 
-	Id 				uint64 					`db:"id" json:"id,omitempty"`
-	Name 			string 					`db:"name" json:"name,omitempty"`
-	UserId 		uint64					`db:"user_id" json:"user_id,omitempty"`
-	CreatedAt time.Time 			`db:"created_at" json:"created_at,omitempty"`
-	UpdatedAt time.Time 			`db:"updated_at" json:"updated_at,omitempty"`
-	DeletedAt time.Time 			`db:"deleted_at" json:"deleted_at,omitempty"`
-	Questions []QuizQuestion	`db:"-" json:"questions,omitempty"`
+	Id        uint64         `db:"id" json:"id,omitempty"`
+	Name      string         `db:"name" json:"name,omitempty"`
+	UserId    uint64         `db:"user_id" json:"user_id,omitempty"`
+	CreatedAt time.Time      `db:"created_at" json:"created_at,omitempty"`
+	UpdatedAt time.Time      `db:"updated_at" json:"updated_at,omitempty"`
+	DeletedAt time.Time      `db:"deleted_at" json:"deleted_at,omitempty"`
+	Questions []QuizQuestion `db:"-" json:"questions,omitempty"`
 } // @name Quiz
 
 func NewQuizMutator(Db *database.Database) *Quiz {
@@ -30,9 +30,9 @@ func NewQuizMutator(Db *database.Database) *Quiz {
 func (q *Quiz) GetQuizzes() (quizzes []Quiz, err error) {
 	query := `SELECT
 		COALESCE(id, '') id, COALESCE(name, '') name
-		FROM ` + TABLE_Quiz + ` WHERE userId = ` +  I.UToS(q.UserId) + `
+		FROM ` + TABLE_Quiz + ` WHERE userId = ` + I.UToS(q.UserId) + `
 		ORDER BY name DESC`
-	
+
 	err = q.Db.DB.Select(&quizzes, query)
 	if err != nil {
 		err = errors.New(`failed to get quizzes`)
@@ -41,9 +41,9 @@ func (q *Quiz) GetQuizzes() (quizzes []Quiz, err error) {
 	return
 }
 
-func (q *Quiz) FindById(id string) error {
-	query := `SELECT * FROM ` + TABLE_Quiz + ` WHERE id = $1 LIMIT 1`
-	err := q.Db.DB.Get(q, query, S.Trim(id))
+func (q *Quiz) FindById(id uint64) error {
+	query := `SELECT id, name, user_id, created_at, updated_at FROM ` + TABLE_Quiz + ` WHERE id = $1 LIMIT 1`
+	err := q.Db.DB.Get(q, query, id)
 	if err != nil {
 		return errors.New(`quiz not found`)
 	}
@@ -79,3 +79,4 @@ RETURNING id, name, user_id, created_at, updated_at`
 
 	return nil
 }
+
