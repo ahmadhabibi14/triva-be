@@ -1,8 +1,10 @@
 _docker-data
 
 bin/triva
-tmp/main
+tmp
 
 storage/**/*.jpg
 storage/**/*.png
 storage/**/*.jpeg
+
+database/backups

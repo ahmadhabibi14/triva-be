@@ -4,19 +4,29 @@ setup:
 	go install github.com/swaggo/swag/cmd/swag@latest
 
 migrate:
-	migrate create -ext sql -dir databases/migration $(state)
+	migrate create -ext sql -dir database/migration $(state)
 
 migrate-up:
-	migrate -path databases/migration -database "postgres://habi:habi123@localhost:5432/triva?sslmode=disable" -verbose up
+	migrate -path database/migration -database "postgres://habi:habi123@localhost:5432/triva?sslmode=disable" -verbose up
 
 migrate-down:
-	migrate -path databases/migration -database "postgres://habi:habi123@localhost:5432/triva?sslmode=disable" -verbose down
+	migrate -path database/migration -database "postgres://habi:habi123@localhost:5432/triva?sslmode=disable" -verbose down
 
 migrate-fix:
-	migrate -path databases/migration -database "postgres://habi:habi123@localhost:5432/triva?sslmode=disable" force $(version)
+	migrate -path database/migration -database "postgres://habi:habi123@localhost:5432/triva?sslmode=disable" force $(version)
 
 migrate-go:
 	go run cmd/database/migrate.go
+
+restore:
+	docker cp ./database/backups/$(filename) triva-db:/$(filename)
+	docker exec -it triva-db psql -U habi -d triva -a -f ./$(filename)
+
+backup:
+	docker exec -it triva-db pg_dump -U habi -F t triva > database/backups/db-$(date +%Y-%m-%d).sql
+
+backup-compressed:
+	docker exec -it triva-db pg_dump -U habi -F t triva | gzip > database/backups/db-$(date +%Y-%m-%d).tar.gz
 
 swagger:
 	swag init -g cmd/triva/main.go --output ./docs --parseDependency --parseInternal

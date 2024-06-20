@@ -25,6 +25,9 @@ make migrate-fix version=migration_version
 ### Enter to PostgreSQL
 ```bash
 docker exec -it triva-db psql -U habi -d triva -W
+
+# restore db
+make restore
 ```
 
 ### Enter to Redis
