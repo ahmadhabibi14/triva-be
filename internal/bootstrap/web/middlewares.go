@@ -2,6 +2,7 @@ package web
 
 import (
 	"os"
+	"strings"
 	"time"
 	"triva/configs"
 	"triva/helper"
@@ -50,7 +51,20 @@ func (m *Middlewares) RateLimiter() {
 }
 
 func (m *Middlewares) Cors() {
-	m.app.Use(cors.New())
+	m.app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:5173",
+		AllowCredentials: true,
+		AllowHeaders:     "Origin, Content-Type, Accept, Content-Length, Accept-Language, Accept-Encoding, Connection, Access-Control-Allow-Origin",
+		AllowMethods: strings.Join([]string{
+			fiber.MethodGet,
+			fiber.MethodPost,
+			fiber.MethodHead,
+			fiber.MethodPut,
+			fiber.MethodDelete,
+			fiber.MethodPatch,
+		}, ","),
+		MaxAge: 3600,
+	}))
 }
 
 func (m *Middlewares) Logger() {

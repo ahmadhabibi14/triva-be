@@ -29,8 +29,8 @@ func NewQuizMutator(Db *database.Database) *Quiz {
 
 func (q *Quiz) GetQuizzes() (quizzes []Quiz, err error) {
 	query := `SELECT
-		COALESCE(id, '') id, COALESCE(name, '') name
-		FROM ` + TABLE_Quiz + ` WHERE userId = ` +  I.UToS(q.UserId) + `
+		COALESCE(id, 0) id, COALESCE(name, '') name
+		FROM ` + TABLE_Quiz + ` WHERE user_id = ` +  I.UToS(q.UserId) + `
 		ORDER BY name DESC`
 	
 	err = q.Db.DB.Select(&quizzes, query)

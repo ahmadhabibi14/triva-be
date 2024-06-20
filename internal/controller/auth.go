@@ -98,6 +98,6 @@ func (ac *AuthController) setCookie(c *fiber.Ctx, sessionKey string) {
 		Expires:  expiration,
 		SameSite: `Lax`,
 		Secure:   os.Getenv(`PROJECT_ENV`) == `prod`,
-		HTTPOnly: true,
+		HTTPOnly: false,
 	})
 }
