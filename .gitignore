@@ -6,5 +6,3 @@ tmp
 storage/**/*.jpg
 storage/**/*.png
 storage/**/*.jpeg
-
-database/backups

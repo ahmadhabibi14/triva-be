@@ -23,10 +23,10 @@ restore:
 	docker exec -it triva-db psql -U habi -d triva -a -f ./$(filename)
 
 backup:
-	docker exec -it triva-db pg_dump -U habi -F t triva > database/backups/db-$(date +%Y-%m-%d).sql
+	docker exec -it triva-db pg_dump -U habi -F t triva > database/backups/db-$(shell date +%Y-%m-%d).sql
 
 backup-compressed:
-	docker exec -it triva-db pg_dump -U habi -F t triva | gzip > database/backups/db-$(date +%Y-%m-%d).tar.gz
+	docker exec -it triva-db pg_dump -U habi -F t triva | gzip > database/backups/db-$(shell date +%Y-%m-%d).tar.gz
 
 swagger:
 	swag init -g cmd/triva/main.go --output ./docs --parseDependency --parseInternal
