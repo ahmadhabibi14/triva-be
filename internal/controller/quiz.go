@@ -56,10 +56,7 @@ func (qc *QuizController) CreateQuiz(c *fiber.Ctx, session *users.Session) error
 		return c.Status(fiber.StatusBadRequest).JSON(response)
 	}
 
-	if createQuizIn.UserId == 0 {
-		createQuizIn.UserId = session.UserID
-	}
-
+	createQuizIn.UserId = session.UserID
 	createQuizOut, err := qc.quizService.CreateQuiz(createQuizIn)
 	if err != nil {
 		response := helper.NewHTTPResponse(err.Error(), nil)
